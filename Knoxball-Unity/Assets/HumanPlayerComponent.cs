@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+public class HumanPlayerComponent : MonoBehaviour
 {
-    public GameObject player;
     public GameObject ball;
     //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
     [System.Serializable]
@@ -19,9 +18,9 @@ public class InputManager : MonoBehaviour
 
     public KeyCode kick;
 
-    float m_ForceStrength = 7.0f;
-    float m_kickStrength = 50.0f;
-    float m_DistanceForKick = 10.0f;
+    float m_ForceStrength = 1.0f;
+    float m_kickStrength = 3.0f;
+    float m_DistanceForKick = 5.0f;
     
     [SerializeField, Tooltip("Pan the camera using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement { enabled = true};
@@ -50,11 +49,11 @@ public class InputManager : MonoBehaviour
         if (Input.GetKey(m_KeyboardKeyMovement.left))
             force.x = - m_ForceStrength;
 
-        player.GetComponent<Rigidbody>().AddForce(force);
+        gameObject.GetComponent<Rigidbody>().AddForce(force);
 
         if (Input.GetKey(kick))
         {
-            var directionVector = (ball.transform.position - player.transform.position);
+            var directionVector = (ball.transform.position - gameObject.transform.position);
             float distanceSquared = directionVector.sqrMagnitude;
             if (distanceSquared < m_DistanceForKick)
             {
