@@ -299,6 +299,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &622575024 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5680065128533870051, guid: 861cd6b3c45af40c3a1cae4499bc4448, type: 3}
+  m_PrefabInstance: {fileID: 5680065127912918836}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1794771475
 GameObject:
   m_ObjectHideFlags: 0
@@ -330,6 +335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ball: {fileID: 1805413605}
   player: {fileID: 4136931748751174121}
+  stadium: {fileID: 622575024}
 --- !u!4 &1794771477
 Transform:
   m_ObjectHideFlags: 0
@@ -362,7 +368,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1693036887743494982, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
       propertyPath: m_Name
-      value: ball
+      value: Ball
       objectReference: {fileID: 0}
     - target: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
       propertyPath: m_RootOrder
@@ -374,7 +380,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
       propertyPath: m_LocalPosition.z
@@ -427,7 +433,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1121922660961792264, guid: bac17a3c3895d4525a81a9f9ca3c7dd1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 1121922660961792264, guid: bac17a3c3895d4525a81a9f9ca3c7dd1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -465,6 +471,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5948445309656787670, guid: bac17a3c3895d4525a81a9f9ca3c7dd1, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 458447cabcf9847ba8ef803f8f1cf45f, type: 2}
     - target: {fileID: 6613388834947923216, guid: bac17a3c3895d4525a81a9f9ca3c7dd1, type: 3}
       propertyPath: m_Name
       value: Player
