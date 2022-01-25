@@ -22,7 +22,7 @@ public class HumanPlayerComponent : MonoBehaviour
     float m_kickStrength = 3.0f;
     float m_DistanceForKick = 5.0f;
     
-    [SerializeField, Tooltip("Pan the camera using keys.")]
+    [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement { enabled = true};
 
     // Start is called before the first frame update
@@ -51,6 +51,7 @@ public class HumanPlayerComponent : MonoBehaviour
 
         gameObject.GetComponent<Rigidbody>().AddForce(force);
 
+        var playerComponent = gameObject.GetComponent<PlayerComponent>();
         if (Input.GetKey(kick))
         {
             var directionVector = (ball.transform.position - gameObject.transform.position);
@@ -59,6 +60,9 @@ public class HumanPlayerComponent : MonoBehaviour
             {
                 ball.GetComponent<Rigidbody>().AddForce(directionVector.normalized * m_kickStrength);
             }
+            playerComponent.LightUp();
+        } else {
+            playerComponent.LightDown();
         }
     }
 }

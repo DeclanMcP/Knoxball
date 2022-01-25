@@ -10,6 +10,7 @@ public class Game : MonoBehaviour
     public GameObject ball;
     public GameObject player;
     public GameObject stadium;
+    public GameObject celebration;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,7 @@ public class Game : MonoBehaviour
         resetGameObject(ball, new Vector3(0,0,0.5f));
         resetGameObject(player, new Vector3(-2,0,0.5f));
         stadium.GetComponent<StadiumComponent>().Reset();
+        StopCelebration();
     }
 
     void resetGameObject(GameObject gameObject, Vector3 position) {
@@ -38,13 +40,23 @@ public class Game : MonoBehaviour
     public void HomeTeamScored() {
         homeTeamScore++;
         print(currentScore());
+        Celebrate();
         StartCoroutine(resetGame());
     }
 
     public void AwayTeamScored() {
         awayTeamScore++;
         print(currentScore());
+        Celebrate();
         StartCoroutine(resetGame());
+    }
+
+    public void Celebrate() {
+        celebration.GetComponent<CelebrationComponent>().Celebrate();
+    }
+
+    public void StopCelebration() {
+        celebration.GetComponent<CelebrationComponent>().StopCelebration();
     }
 
     string currentScore() {
