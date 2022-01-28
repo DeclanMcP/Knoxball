@@ -5,6 +5,7 @@ using UnityEngine;
 public class CelebrationComponent : MonoBehaviour
 {
     public ParticleSystem confetti;
+    public GameObject celebrationCamera;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,9 +20,11 @@ public class CelebrationComponent : MonoBehaviour
 
     public void Celebrate() {
         confetti.Play();
+        celebrationCamera.SetActive(true);
     }
 
     public void StopCelebration() {
         confetti.Stop();
+        celebrationCamera.SetActive(false);
     }
 }

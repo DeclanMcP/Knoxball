@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
@@ -11,6 +13,9 @@ public class Game : MonoBehaviour
     public GameObject player;
     public GameObject stadium;
     public GameObject celebration;
+    public GameObject mainCamera;
+    public GameObject menuOverlay;
+    public Text score;
 
     // Start is called before the first frame update
     void Start()
@@ -39,27 +44,33 @@ public class Game : MonoBehaviour
 
     public void HomeTeamScored() {
         homeTeamScore++;
-        print(currentScore());
         Celebrate();
         StartCoroutine(resetGame());
     }
 
     public void AwayTeamScored() {
         awayTeamScore++;
-        print(currentScore());
         Celebrate();
         StartCoroutine(resetGame());
     }
 
     public void Celebrate() {
+        score.text = currentScore();
+        print(currentScore());
         celebration.GetComponent<CelebrationComponent>().Celebrate();
+        mainCamera.SetActive(false);
     }
 
     public void StopCelebration() {
+        mainCamera.SetActive(true);
         celebration.GetComponent<CelebrationComponent>().StopCelebration();
     }
 
     string currentScore() {
         return "Home: " + homeTeamScore + ":" + awayTeamScore + " :Away";
+    }
+
+    public void onMenuClicked() {
+        menuOverlay.SetActive(true);
     }
 }
