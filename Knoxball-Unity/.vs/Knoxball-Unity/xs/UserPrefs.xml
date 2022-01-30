@@ -1,0 +1,45 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/NGO/SetupInGame.cs">
+    <Files>
+      <File FileName="Assets/Scripts/Relay/RelayUtpSetup.cs" Line="74" Column="39" />
+      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" />
+      <File FileName="Assets/Scripts/UI/LobbyUserVolumeUI.cs" />
+      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="170" Column="42" />
+      <File FileName="Assets/MenuManager.cs" Line="21" Column="57" />
+      <File FileName="Assets/Scripts/UI/ReadyCheckUI.cs" Line="20" Column="51" />
+      <File FileName="Assets/Scripts/Lobby/AsyncRequestLobby.cs" Line="28" Column="35" />
+      <File FileName="Assets/Scripts/Relay/AsyncRequestRelay.cs" Line="27" Column="39" />
+      <File FileName="Assets/Scripts/Game/Countdown.cs" Line="47" Column="52" />
+      <File FileName="Assets/Scripts/Relay/RelayUtpHost.cs" Line="156" Column="82" />
+      <File FileName="Assets/Scripts/Relay/RelayUtpClient.cs" Line="154" Column="72" />
+      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="81" Column="37" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Knoxball-Unity" expanded="True">
+            <Node name="Assembly-CSharp" expanded="True">
+              <Node name="Assets" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Game" expanded="True" />
+                  <Node name="Lobby" expanded="True" />
+                  <Node name="NGO" expanded="True">
+                    <Node name="SetupInGame.cs" selected="True" />
+                  </Node>
+                  <Node name="Relay" expanded="True" />
+                  <Node name="UI" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

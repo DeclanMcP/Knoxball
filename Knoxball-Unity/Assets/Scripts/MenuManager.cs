@@ -18,5 +18,6 @@ public class MenuManager : MonoBehaviour
 
     public void onMultiplayerClicked() {
         print("Multiplayer Clicked");
+        SceneManager.LoadScene("MultiplayerLobbyScene");
     }
 }
