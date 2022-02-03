@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class HumanPlayerComponent : MonoBehaviour
+public class HumanPlayerComponent : NetworkBehaviour
 {
     public GameObject ball;
     //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
@@ -25,6 +26,9 @@ public class HumanPlayerComponent : MonoBehaviour
     [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement { enabled = true};
 
+    private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,10 +38,19 @@ public class HumanPlayerComponent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdatePlayer();
+        print("Calling update on " + gameObject);
+        if (IsOwner)
+        {
+            print("Calling IsOwner update on " + gameObject);
+            UpdatePlayerInput();
+            UpdatePlayerPosition();
+        } else
+        {
+            transform.position = m_position.Value;
+        }
     }
 
-    void UpdatePlayer()
+    void UpdatePlayerInput()
     {
         var force = new Vector3();
         if (Input.GetKey(m_KeyboardKeyMovement.up))
@@ -50,6 +63,7 @@ public class HumanPlayerComponent : MonoBehaviour
             force.x = - m_ForceStrength;
 
         gameObject.GetComponent<Rigidbody>().AddForce(force);
+        print("Calling adding force on " + gameObject);
 
         var playerComponent = gameObject.GetComponent<PlayerComponent>();
         if (Input.GetKey(kick))
@@ -64,5 +78,18 @@ public class HumanPlayerComponent : MonoBehaviour
         } else {
             playerComponent.LightDown();
         }
+    }
+
+    void UpdatePlayerPosition()
+    {
+        Vector3 targetPosition = transform.position;
+        SetPosition_ServerRpc(targetPosition); // Client can't set a network variable value.
+
+    }
+
+    [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
+    private void SetPosition_ServerRpc(Vector3 position)
+    {
+        m_position.Value = position;
     }
 }

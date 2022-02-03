@@ -46,8 +46,8 @@ namespace LobbyRelaySample.ngo
         {
             m_inGameManagerObj = GameObject.Instantiate(m_prefabNetworkManager);
             m_networkManager = m_inGameManagerObj.GetComponentInChildren<NetworkManager>();
-            m_inGameRunner = m_inGameManagerObj.GetComponentInChildren<InGameRunner>();
-            m_inGameRunner.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser);
+            //m_inGameRunner = m_inGameManagerObj.GetComponentInChildren<InGameRunner>();
+            //m_inGameRunner.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser);
 
             UnityTransport transport = m_inGameManagerObj.GetComponentInChildren<UnityTransport>();
             if (m_localUser.IsHost)
@@ -87,6 +87,7 @@ namespace LobbyRelaySample.ngo
 
             else if (type == MessageType.MinigameBeginning)
             {
+                print("Minigame begins. triggered");
                 if (!m_hasConnectedViaNGO)
                 {
                     // If this player hasn't successfully connected via NGO, forcibly exit the minigame.

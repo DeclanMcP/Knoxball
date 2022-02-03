@@ -10,7 +10,7 @@ public class Game : MonoBehaviour
     int awayTeamScore = 0;
 
     public GameObject ball;
-    public GameObject player;
+    //public GameObject player;
     public GameObject stadium;
     public GameObject celebration;
     public GameObject mainCamera;
@@ -32,7 +32,7 @@ public class Game : MonoBehaviour
     IEnumerator resetGame() {
         yield return new WaitForSeconds(2f);
         resetGameObject(ball, new Vector3(0,0,0.5f));
-        resetGameObject(player, new Vector3(-2,0,0.5f));
+        //resetGameObject(player, new Vector3(-2,0,0.5f));
         stadium.GetComponent<StadiumComponent>().Reset();
         StopCelebration();
     }

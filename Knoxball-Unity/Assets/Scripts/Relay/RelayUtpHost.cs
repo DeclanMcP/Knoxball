@@ -152,7 +152,7 @@ namespace LobbyRelaySample.relay
         /// </summary>
         public void SendInGameState()
         {
-            print("SendInGameState");
+            print("Relay.UtpHost.SendInGameState triggered");
             Locator.Get.Messenger.OnReceiveMessage(MessageType.ConfirmInGameState, null);
             foreach (NetworkConnection connection in m_connections)
                 WriteByte(m_networkDriver, connection, m_localUser.ID, MsgType.ConfirmInGame, 0);
