@@ -123,6 +123,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &125628740 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 643524096913888924, guid: b2b46e223615a4803a27c76ce8f6a3cd, type: 3}
+  m_PrefabInstance: {fileID: 1319869916606966111}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42844a4fccbd54746b90cade4ff70f73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &127927150
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,8 +488,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36372805ccc634b3db0ad01fda10ac4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  variableJoystick: {fileID: 125628740}
   ball: {fileID: 1805413605}
-  player: {fileID: 4136931748751174121}
   stadium: {fileID: 622575024}
   celebration: {fileID: 1009818742}
   mainCamera: {fileID: 519420028}

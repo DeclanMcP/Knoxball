@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class HumanPlayerComponent : NetworkBehaviour
 {
+
     public GameObject ball;
     //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
     [System.Serializable]
@@ -19,7 +20,7 @@ public class HumanPlayerComponent : NetworkBehaviour
 
     public KeyCode kick;
 
-    float m_ForceStrength = 1.0f;
+    float m_ForceStrength = 10.0f;
     float m_kickStrength = 3.0f;
     float m_DistanceForKick = 5.0f;
     
@@ -32,19 +33,26 @@ public class HumanPlayerComponent : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+
+        //Vector3 direction = Vector3.up * Game.instance.variableJoystick.Vertical + Vector3.right * Game.instance.variableJoystick.Horizontal;
+        //gameObject.GetComponent<Rigidbody>().AddForce(direction * m_ForceStrength * Time.fixedDeltaTime, ForceMode.VelocityChange);
+
+        //print("Calling adding force " + direction.x + "," + direction.y);
+
         print("Calling update on " + gameObject);
         if (IsOwner)
         {
             print("Calling IsOwner update on " + gameObject);
             UpdatePlayerInput();
             UpdatePlayerPosition();
-        } else
+        }
+        else
         {
             transform.position = m_position.Value;
         }
@@ -63,7 +71,11 @@ public class HumanPlayerComponent : NetworkBehaviour
             force.x = - m_ForceStrength;
 
         gameObject.GetComponent<Rigidbody>().AddForce(force);
-        print("Calling adding force on " + gameObject);
+
+        Vector3 direction = Vector3.up * Game.instance.variableJoystick.Vertical + Vector3.right * Game.instance.variableJoystick.Horizontal;
+        gameObject.GetComponent<Rigidbody>().AddForce(direction * m_ForceStrength * Time.fixedDeltaTime, ForceMode.VelocityChange);
+
+        print("Calling adding force " + direction.x + "," + direction.y);
 
         var playerComponent = gameObject.GetComponent<PlayerComponent>();
         if (Input.GetKey(kick))

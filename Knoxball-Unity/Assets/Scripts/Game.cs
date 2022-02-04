@@ -9,6 +9,7 @@ public class Game : MonoBehaviour
     int homeTeamScore = 0;
     int awayTeamScore = 0;
 
+    public VariableJoystick variableJoystick;
     public GameObject ball;
     //public GameObject player;
     public GameObject stadium;
@@ -16,6 +17,19 @@ public class Game : MonoBehaviour
     public GameObject mainCamera;
     public GameObject menuOverlay;
     public Text score;
+
+    public static Game instance;
+
+    private void Awake()
+    {
+        //Check if instance already exists
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+
+        DontDestroyOnLoad(gameObject);
+    }
 
     // Start is called before the first frame update
     void Start()

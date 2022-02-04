@@ -1,8 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/BallComponent.cs">
     <Files>
-      <File FileName="Assets/Scripts/HumanPlayerComponent.cs" Line="45" Column="36" />
-      <File FileName="Assets/Scripts/Game.cs" Line="35" Column="9" />
+      <File FileName="Assets/Scripts/HumanPlayerComponent.cs" Line="6" Column="53" />
+      <File FileName="Assets/Scripts/Game.cs" Line="19" Column="23" />
+      <File FileName="Assets/Joystick Pack/Examples/JoystickPlayerExample.cs" Line="13" Column="41" />
+      <File FileName="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" Line="6" Column="38" />
+      <File FileName="Assets/Joystick Pack/Scripts/Base/Joystick.cs" Line="6" Column="14" />
+      <File FileName="Assets/Scripts/BallComponent.cs" Line="5" Column="46" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -10,11 +14,15 @@
           <Node name="Knoxball-Unity" expanded="True">
             <Node name="Assembly-CSharp" expanded="True">
               <Node name="Assets" expanded="True">
+                <Node name="Joystick Pack" expanded="True">
+                  <Node name="Examples" expanded="True" />
+                  <Node name="Scripts" expanded="True">
+                    <Node name="Base" expanded="True" />
+                    <Node name="Joysticks" expanded="True" />
+                  </Node>
+                </Node>
                 <Node name="Scripts" expanded="True">
-                  <Node name="NGO" expanded="True" />
-                  <Node name="Relay" expanded="True" />
-                  <Node name="UI" expanded="True" />
-                  <Node name="Game.cs" selected="True" />
+                  <Node name="BallComponent.cs" selected="True" />
                 </Node>
               </Node>
             </Node>

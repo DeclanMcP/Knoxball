@@ -259,8 +259,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36372805ccc634b3db0ad01fda10ac4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  variableJoystick: {fileID: 2403636986923772601}
   ball: {fileID: 7130176806192542186}
-  player: {fileID: 0}
   stadium: {fileID: 7387762416114233526}
   celebration: {fileID: 75114524130340768}
   mainCamera: {fileID: 5646524678167781565}
@@ -782,6 +782,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2403636986923772601 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 643524096913888924, guid: b2b46e223615a4803a27c76ce8f6a3cd, type: 3}
+  m_PrefabInstance: {fileID: 3005359846458407973}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42844a4fccbd54746b90cade4ff70f73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5144343877420750378
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -910,13 +921,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
---- !u!1 &7130176806192542186 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1693036887743494982, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
-  m_PrefabInstance: {fileID: 8470595882348219052}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7130176806192542181 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
+  m_PrefabInstance: {fileID: 8470595882348219052}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7130176806192542186 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1693036887743494982, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
   m_PrefabInstance: {fileID: 8470595882348219052}
   m_PrefabAsset: {fileID: 0}
