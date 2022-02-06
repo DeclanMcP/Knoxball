@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,13 +53,18 @@
     <UnityVersion>2021.1.24f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Assets/Scripts/Game/LocalGameState.cs" />
     <Compile Include="Assets/Scripts/UI/CreateMenuUI.cs" />
     <Compile Include="Assets/Scripts/GameMenuManager.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/Observed.cs" />
     <Compile Include="Assets/Scripts/UI/InLobbyUserUI.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/LogHandler.cs" />
+    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FixedJoystick.cs" />
     <Compile Include="Assets/Scripts/Auth/Identity.cs" />
+    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" />
     <Compile Include="Assets/Scripts/Game/Countdown.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/Messenger.cs" />
     <Compile Include="Assets/Scripts/Lobby/AsyncRequestLobby.cs" />
@@ -91,8 +96,10 @@
     <Compile Include="Assets/Scripts/CelebrationComponent.cs" />
     <Compile Include="Assets/Scripts/NGO/SymbolContainer.cs" />
     <Compile Include="Assets/Scripts/NGO/SymbolObject.cs" />
+    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
     <Compile Include="Assets/Scripts/UI/ReadyCheckUI.cs" />
     <Compile Include="Assets/Scripts/NGO/Scorer.cs" />
+    <Compile Include="Assets/Joystick Pack/Scripts/Base/Joystick.cs" />
     <Compile Include="Assets/Scripts/UI/UserNameUI.cs" />
     <Compile Include="Assets/Scripts/UI/ShowWhenLobbyStateUI.cs" />
     <Compile Include="Assets/Scripts/UI/UITinter.cs" />
@@ -100,6 +107,7 @@
     <Compile Include="Assets/Scripts/Lobby/LobbyAPIInterface.cs" />
     <Compile Include="Assets/Scripts/Game/LocalLobbyObserver.cs" />
     <Compile Include="Assets/Scripts/Game/LobbyUserAudio.cs" />
+    <Compile Include="Assets/KickButton.cs" />
     <Compile Include="Assets/Scripts/UI/GameStateVisibilityUI.cs" />
     <Compile Include="Assets/Scripts/Game/LobbyUser.cs" />
     <Compile Include="Assets/Scripts/Auth/NameGenerator.cs" />
@@ -120,6 +128,7 @@
     <Compile Include="Assets/Scripts/Game/LobbyServiceData.cs" />
     <Compile Include="Assets/Scripts/StadiumComponent.cs" />
     <Compile Include="Assets/Scripts/Game/LobbyUserObserver.cs" />
+    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs" />
     <Compile Include="Assets/Scripts/NGO/ResultsUserUI.cs" />
     <Compile Include="Assets/Scripts/UI/JoinCreateLobbyUI.cs" />
     <Compile Include="Assets/Scripts/UI/NameChangeUI.cs" />
@@ -142,11 +151,6 @@
     <Compile Include="Assets/Scripts/NGO/IntroOutroRunner.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/LogHandlerSettings.cs" />
     <Compile Include="Assets/Scripts/BallComponent.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Base/Joystick.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FixedJoystick.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />

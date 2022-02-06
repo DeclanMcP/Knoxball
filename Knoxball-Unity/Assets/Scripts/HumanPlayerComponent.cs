@@ -21,30 +21,45 @@ public class HumanPlayerComponent : NetworkBehaviour
     public KeyCode kick;
 
     float m_ForceStrength = 10.0f;
-    float m_kickStrength = 3.0f;
-    float m_DistanceForKick = 5.0f;
     
     [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement { enabled = true};
 
     private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
-
+    private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
+    private bool kicking = false;
 
     // Start is called before the first frame update
     void Start()
     {
         //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
+        if (IsOwner)
+        {
+            print("setting kickCallback!");
+            Game.instance.kickCallBack = new KickCallBack(onKick);
+        }
+    }
+
+    void onKick(bool isPressed)
+    {
+        print("KICK!");
+        var playerComponent = gameObject.GetComponent<PlayerComponent>();
+        if (isPressed)
+        {
+            Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
+            playerComponent.LightUp();
+        }
+        else
+        {
+            playerComponent.LightDown();
+        }
+        this.kicking = isPressed;
+        UpdatePlayerKickState();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-
-        //Vector3 direction = Vector3.up * Game.instance.variableJoystick.Vertical + Vector3.right * Game.instance.variableJoystick.Horizontal;
-        //gameObject.GetComponent<Rigidbody>().AddForce(direction * m_ForceStrength * Time.fixedDeltaTime, ForceMode.VelocityChange);
-
-        //print("Calling adding force " + direction.x + "," + direction.y);
-
         print("Calling update on " + gameObject);
         if (IsOwner)
         {
@@ -55,6 +70,12 @@ public class HumanPlayerComponent : NetworkBehaviour
         else
         {
             transform.position = m_position.Value;
+            if (!kicking && m_kicking.Value)
+            {
+                //Call kick on ball to check if an update is required
+                Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
+            }
+            kicking = m_kicking.Value;
         }
     }
 
@@ -80,12 +101,7 @@ public class HumanPlayerComponent : NetworkBehaviour
         var playerComponent = gameObject.GetComponent<PlayerComponent>();
         if (Input.GetKey(kick))
         {
-            var directionVector = (ball.transform.position - gameObject.transform.position);
-            float distanceSquared = directionVector.sqrMagnitude;
-            if (distanceSquared < m_DistanceForKick)
-            {
-                ball.GetComponent<Rigidbody>().AddForce(directionVector.normalized * m_kickStrength);
-            }
+            Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
             playerComponent.LightUp();
         } else {
             playerComponent.LightDown();
@@ -103,5 +119,16 @@ public class HumanPlayerComponent : NetworkBehaviour
     private void SetPosition_ServerRpc(Vector3 position)
     {
         m_position.Value = position;
+    }
+
+    void UpdatePlayerKickState()
+    {
+        SetKicking_ServerRpc(this.kicking);
+    }
+
+    [ServerRpc]
+    private void SetKicking_ServerRpc(bool kicking)
+    {
+        m_kicking.Value = kicking;
     }
 }

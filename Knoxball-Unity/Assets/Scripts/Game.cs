@@ -4,12 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+
+public delegate void KickCallBack(bool isPressed);
+
 public class Game : MonoBehaviour
 {
     int homeTeamScore = 0;
     int awayTeamScore = 0;
 
     public VariableJoystick variableJoystick;
+    public KickButton kickButton;
+    public KickCallBack kickCallBack;
+
     public GameObject ball;
     //public GameObject player;
     public GameObject stadium;
@@ -34,7 +40,7 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        kickButton.customEvent = onKickClicked;
     }
 
     // Update is called once per frame
@@ -84,7 +90,15 @@ public class Game : MonoBehaviour
         return "Home: " + homeTeamScore + ":" + awayTeamScore + " :Away";
     }
 
-    public void onMenuClicked() {
+    public void onMenuClicked()
+    {
+        print("onMenuClicked!");
         menuOverlay.SetActive(true);
+    }
+
+    public void onKickClicked(bool isPressed)
+    {
+        print("onKickClicked!" + isPressed);
+        kickCallBack(isPressed);
     }
 }

@@ -1,38 +1,25 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/BallComponent.cs">
+﻿<Properties StartupConfiguration="{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}|">
+  <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Assets/Scripts/HumanPlayerComponent.cs" Line="6" Column="53" />
-      <File FileName="Assets/Scripts/Game.cs" Line="19" Column="23" />
+      <File FileName="Assets/Scripts/HumanPlayerComponent.cs" Line="47" Column="74" />
+      <File FileName="Assets/Scripts/BallComponent.cs" Line="32" Column="13" />
+      <File FileName="Assets/Scripts/Game.cs" Line="102" Column="6" />
       <File FileName="Assets/Joystick Pack/Examples/JoystickPlayerExample.cs" Line="13" Column="41" />
       <File FileName="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" Line="6" Column="38" />
       <File FileName="Assets/Joystick Pack/Scripts/Base/Joystick.cs" Line="6" Column="14" />
-      <File FileName="Assets/Scripts/BallComponent.cs" Line="5" Column="46" />
+      <File FileName="Assets/KickButton.cs" Line="6" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="Knoxball-Unity" expanded="True">
-            <Node name="Assembly-CSharp" expanded="True">
-              <Node name="Assets" expanded="True">
-                <Node name="Joystick Pack" expanded="True">
-                  <Node name="Examples" expanded="True" />
-                  <Node name="Scripts" expanded="True">
-                    <Node name="Base" expanded="True" />
-                    <Node name="Joysticks" expanded="True" />
-                  </Node>
-                </Node>
-                <Node name="Scripts" expanded="True">
-                  <Node name="BallComponent.cs" selected="True" />
-                </Node>
-              </Node>
-            </Node>
-          </Node>
+          <Node name="Knoxball-Unity" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e941e162-3a7f-46b9-8ec6-a173a4dee7f3" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/declanmcpartlin/Documents/Personal/Projects/Knoxball/Knoxball-Unity/Assets/Scripts/NGO/InGameRunner.cs" relfile="Assets/Scripts/NGO/InGameRunner.cs" line="123" column="1" />
