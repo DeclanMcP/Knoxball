@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,12 +53,8 @@
     <UnityVersion>2021.1.24f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets/Scripts/Game/LocalGameState.cs" />
     <Compile Include="Assets/Scripts/UI/CreateMenuUI.cs" />
-    <Compile Include="Assets/Scripts/GameMenuManager.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/Observed.cs" />
     <Compile Include="Assets/Scripts/UI/InLobbyUserUI.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/LogHandler.cs" />
@@ -73,32 +69,21 @@
     <Compile Include="Assets/Scripts/Infrastructure/UpdateSlow.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/ObserverBehaviour.cs" />
     <Compile Include="Assets/Scripts/NGO/IInGameInputHandler.cs" />
-    <Compile Include="Assets/Scripts/NGO/InGameRunner.cs" />
-    <Compile Include="Assets/Scripts/MenuManager.cs" />
     <Compile Include="Assets/Scripts/UI/LobbyUserVolumeUI.cs" />
-    <Compile Include="Assets/Scripts/PlayerComponent.cs" />
     <Compile Include="Assets/Scripts/Game/LocalLobby.cs" />
-    <Compile Include="Assets/Scripts/NGO/SymbolData.cs" />
     <Compile Include="Assets/Scripts/UI/CountdownUI.cs" />
-    <Compile Include="Assets/Scripts/NGO/PlayerCursor.cs" />
     <Compile Include="Assets/Scripts/UI/DisplayCodeUI.cs" />
     <Compile Include="Assets/Scripts/Relay/AsyncRequestRelay.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/Locator.cs" />
-    <Compile Include="Assets/Scripts/NGO/PlayerData.cs" />
     <Compile Include="Assets/Scripts/UI/BackButtonUI.cs" />
     <Compile Include="Assets/Scripts/Relay/RelayUtpSetup.cs" />
     <Compile Include="Assets/Scripts/UI/MainMenuUI.cs" />
-    <Compile Include="Assets/Scripts/Game.cs" />
     <Compile Include="Assets/Scripts/UI/RelayAddressUI.cs" />
     <Compile Include="Assets/Scripts/Game/GameManager.cs" />
     <Compile Include="Assets/Scripts/UI/ExitButtonUI.cs" />
     <Compile Include="Assets/Scripts/UI/LobbyNameUI.cs" />
-    <Compile Include="Assets/Scripts/CelebrationComponent.cs" />
-    <Compile Include="Assets/Scripts/NGO/SymbolContainer.cs" />
-    <Compile Include="Assets/Scripts/NGO/SymbolObject.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
     <Compile Include="Assets/Scripts/UI/ReadyCheckUI.cs" />
-    <Compile Include="Assets/Scripts/NGO/Scorer.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Base/Joystick.cs" />
     <Compile Include="Assets/Scripts/UI/UserNameUI.cs" />
     <Compile Include="Assets/Scripts/UI/ShowWhenLobbyStateUI.cs" />
@@ -120,16 +105,11 @@
     <Compile Include="Assets/Scripts/Infrastructure/AsyncRequest.cs" />
     <Compile Include="Assets/Scripts/UI/LobbyButtonUI.cs" />
     <Compile Include="Assets/Scripts/NGO/RelayNGOUtpSetup.cs" />
-    <Compile Include="Assets/Scripts/HumanPlayerComponent.cs" />
     <Compile Include="Assets/Scripts/UI/RecolorForLobbyType.cs" />
     <Compile Include="Assets/Scripts/Relay/RelayUtpHost.cs" />
-    <Compile Include="Assets/Scripts/NGO/NetworkedDataStore.cs" />
-    <Compile Include="Assets/Scripts/NGO/SymbolKillVolume.cs" />
     <Compile Include="Assets/Scripts/Game/LobbyServiceData.cs" />
-    <Compile Include="Assets/Scripts/StadiumComponent.cs" />
     <Compile Include="Assets/Scripts/Game/LobbyUserObserver.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs" />
-    <Compile Include="Assets/Scripts/NGO/ResultsUserUI.cs" />
     <Compile Include="Assets/Scripts/UI/JoinCreateLobbyUI.cs" />
     <Compile Include="Assets/Scripts/UI/NameChangeUI.cs" />
     <Compile Include="Assets/Scripts/NGO/SetupInGame.cs" />
@@ -140,17 +120,22 @@
     <Compile Include="Assets/Scripts/UI/JoinMenuUI.cs" />
     <Compile Include="Assets/Scripts/Relay/RelayAPIInterface.cs" />
     <Compile Include="Assets/Scripts/UI/EmoteButtonUI.cs" />
-    <Compile Include="Assets/Scripts/GoalComponent.cs" />
     <Compile Include="Assets/Scripts/Game/EmoteType.cs" />
     <Compile Include="Assets/Scripts/Game/ServerAddress.cs" />
     <Compile Include="Assets/Scripts/UI/RateLimitVisibility.cs" />
-    <Compile Include="Assets/Scripts/NGO/SequenceSelector.cs" />
     <Compile Include="Assets/Scripts/UI/UserStateVisibilityUI.cs" />
     <Compile Include="Assets/Scripts/UI/PopUpUI.cs" />
     <Compile Include="Assets/Scripts/Relay/RelayUtpClient.cs" />
-    <Compile Include="Assets/Scripts/NGO/IntroOutroRunner.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/LogHandlerSettings.cs" />
-    <Compile Include="Assets/Scripts/BallComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/StadiumComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/GoalComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/CelebrationComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/MenuManager.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/Game.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/GameMenuManager.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/HumanPlayerComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/PlayerComponent.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/BallComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />

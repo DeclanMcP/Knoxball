@@ -265,28 +265,28 @@ namespace LobbyRelaySample
         {
             //m_vivoxSetup.Initialize(m_vivoxUserHandlers, OnVivoxLoginComplete);
 
-            void OnVivoxLoginComplete(bool didSucceed)
-            {
-                if (!didSucceed)
-                {   Debug.LogError("Vivox login failed! Retrying in 5s...");
-                    StartCoroutine(RetryConnection(StartVivoxLogin, m_localLobby.LobbyID));
-                    return;
-                }
-            }
+            //void OnVivoxLoginComplete(bool didSucceed)
+            //{
+            //    if (!didSucceed)
+            //    {   Debug.LogError("Vivox login failed! Retrying in 5s...");
+            //        StartCoroutine(RetryConnection(StartVivoxLogin, m_localLobby.LobbyID));
+            //        return;
+            //    }
+            //}
         }
 
         private void StartVivoxJoin()
         {
             //m_vivoxSetup.JoinLobbyChannel(m_localLobby.LobbyID, OnVivoxJoinComplete);
 
-            void OnVivoxJoinComplete(bool didSucceed)
-            {
-                if (!didSucceed)
-                {   Debug.LogError("Vivox connection failed! Retrying in 5s...");
-                    StartCoroutine(RetryConnection(StartVivoxJoin, m_localLobby.LobbyID));
-                    return;
-                }
-            }
+            //void OnVivoxJoinComplete(bool didSucceed)
+            //{
+            //    if (!didSucceed)
+            //    {   Debug.LogError("Vivox connection failed! Retrying in 5s...");
+            //        StartCoroutine(RetryConnection(StartVivoxJoin, m_localLobby.LobbyID));
+            //        return;
+            //    }
+            //}
         }
 
         private void StartRelayConnection()

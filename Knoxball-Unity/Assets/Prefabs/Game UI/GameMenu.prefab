@@ -336,7 +336,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3687664266700024287}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36c726c4654314f1faddc3b56c7f1dc0, type: 3}
+  m_Script: {fileID: 11500000, guid: 4322ba29398c841aea3e22c5bf2ff300, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   menuOverlay: {fileID: 3687664267351223129}
@@ -461,13 +461,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3687664266700024285}
-        m_TargetAssemblyTypeName: GameMenuManager, Assembly-CSharp
-        m_MethodName: onResumeClicked
+      - m_Target: {fileID: 11500000, guid: 4322ba29398c841aea3e22c5bf2ff300, type: 3}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
