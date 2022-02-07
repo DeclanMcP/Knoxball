@@ -10,7 +10,7 @@ public class BallComponent : NetworkBehaviour
 
     float maxSpeed = 10.0f;
     float m_DistanceForKick = 5.0f;
-    float m_kickStrength = 80.0f;
+    float m_kickStrength = 2500.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,8 +30,6 @@ public class BallComponent : NetworkBehaviour
             transform.position = m_position.Value;
             GetComponent<Rigidbody>().velocity = m_velocity.Value;
         }
-
-        //print(gameObject.GetComponent<Rigidbody>().velocity);
         
     }
 
@@ -72,7 +70,7 @@ public class BallComponent : NetworkBehaviour
             float distanceSquared = directionVector.sqrMagnitude;
             if (distanceSquared < m_DistanceForKick)
             {
-                gameObject.GetComponent<Rigidbody>().AddForce(directionVector.normalized * m_kickStrength);
+                gameObject.GetComponent<Rigidbody>().AddForce(directionVector.normalized * m_kickStrength * Time.fixedDeltaTime);
                 UpdateVelocity();
             }
         }

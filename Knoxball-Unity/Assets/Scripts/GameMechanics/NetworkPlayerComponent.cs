@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
-public class HumanPlayerComponent : NetworkBehaviour
+public class NetworkPlayerComponent : NetworkBehaviour
 {
-
-    public GameObject ball;
     //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
     [System.Serializable]
     public struct KeyboardKeyMovement
@@ -18,16 +14,24 @@ public class HumanPlayerComponent : NetworkBehaviour
         public KeyCode left;
     }
 
-    public KeyCode kick;
+    public KeyCode kick = KeyCode.Space;
 
     float m_ForceStrength = 10.0f;
-    
+    private bool m_kickButtonState = false;
+
     [SerializeField, Tooltip("Move the player using keys.")]
-    private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement { enabled = true};
+    private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement
+    {
+        enabled = true,
+        up = KeyCode.UpArrow,
+        down = KeyCode.DownArrow,
+        right = KeyCode.RightArrow,
+        left = KeyCode.LeftArrow
+    };
 
     private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
+    private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
     private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
-    private bool kicking = false;
 
     // Start is called before the first frame update
     void Start()
@@ -36,25 +40,27 @@ public class HumanPlayerComponent : NetworkBehaviour
         if (IsOwner)
         {
             print("setting kickCallback!");
-            Game.instance.kickCallBack = new KickCallBack(onKick);
+            Game.instance.kickCallBack = new KickCallBack(OnKick);
+            transform.position = new Vector3(5, 0, 0);
         }
     }
 
-    void onKick(bool isPressed)
+    void OnKick(bool isPressed)
+    {
+        m_kickButtonState = isPressed;
+        HandleKickEvent();
+    }
+
+    void HandleKickEvent()
     {
         print("KICK!");
         var playerComponent = gameObject.GetComponent<PlayerComponent>();
-        if (isPressed)
+        var previousKicking = playerComponent.IsKicking();
+        playerComponent.OnKickStateChange(m_kickButtonState || Input.GetKey(kick));
+        if (previousKicking != playerComponent.IsKicking())
         {
-            Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
-            playerComponent.LightUp();
+            UpdatePlayerKickState();
         }
-        else
-        {
-            playerComponent.LightDown();
-        }
-        this.kicking = isPressed;
-        UpdatePlayerKickState();
     }
 
     // Update is called once per frame
@@ -66,46 +72,43 @@ public class HumanPlayerComponent : NetworkBehaviour
             print("Calling IsOwner update on " + gameObject);
             UpdatePlayerInput();
             UpdatePlayerPosition();
+            UpdatePlayerVelocity();
         }
         else
         {
             transform.position = m_position.Value;
-            if (!kicking && m_kicking.Value)
-            {
-                //Call kick on ball to check if an update is required
-                Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
-            }
-            kicking = m_kicking.Value;
+            var playerComponent = gameObject.GetComponent<PlayerComponent>();
+            playerComponent.OnKickStateChange(m_kicking.Value);
+            GetComponent<Rigidbody>().velocity = m_velocity.Value;
         }
     }
 
     void UpdatePlayerInput()
     {
+        var force = GenerateKeypadForce() + GenerateJoystickForce();
+        gameObject.GetComponent<Rigidbody>().AddForce(force, ForceMode.VelocityChange);
+        Debug.Log("Calling adding force " + force.x + "," + force.y);
+        HandleKickEvent();
+    }
+
+    Vector3 GenerateKeypadForce()
+    {
         var force = new Vector3();
         if (Input.GetKey(m_KeyboardKeyMovement.up))
             force.y = m_ForceStrength;
         if (Input.GetKey(m_KeyboardKeyMovement.down))
-            force.y = - m_ForceStrength;
+            force.y = -m_ForceStrength;
         if (Input.GetKey(m_KeyboardKeyMovement.right))
             force.x = m_ForceStrength;
         if (Input.GetKey(m_KeyboardKeyMovement.left))
-            force.x = - m_ForceStrength;
+            force.x = -m_ForceStrength;
+        return force * Time.fixedDeltaTime;
+    }
 
-        gameObject.GetComponent<Rigidbody>().AddForce(force);
-
+    Vector3 GenerateJoystickForce()
+    {
         Vector3 direction = Vector3.up * Game.instance.variableJoystick.Vertical + Vector3.right * Game.instance.variableJoystick.Horizontal;
-        gameObject.GetComponent<Rigidbody>().AddForce(direction * m_ForceStrength * Time.fixedDeltaTime, ForceMode.VelocityChange);
-
-        print("Calling adding force " + direction.x + "," + direction.y);
-
-        var playerComponent = gameObject.GetComponent<PlayerComponent>();
-        if (Input.GetKey(kick))
-        {
-            Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
-            playerComponent.LightUp();
-        } else {
-            playerComponent.LightDown();
-        }
+        return direction * m_ForceStrength * Time.fixedDeltaTime;
     }
 
     void UpdatePlayerPosition()
@@ -121,9 +124,22 @@ public class HumanPlayerComponent : NetworkBehaviour
         m_position.Value = position;
     }
 
+    void UpdatePlayerVelocity()
+    {
+        Vector3 targetVelocity = GetComponent<Rigidbody>().velocity;
+        SetVelocity_ServerRpc(targetVelocity);
+    }
+
+    [ServerRpc]
+    private void SetVelocity_ServerRpc(Vector3 velocity)
+    {
+        m_velocity.Value = velocity;
+    }
+
     void UpdatePlayerKickState()
     {
-        SetKicking_ServerRpc(this.kicking);
+        var playerComponent = gameObject.GetComponent<PlayerComponent>();
+        SetKicking_ServerRpc(playerComponent.IsKicking());
     }
 
     [ServerRpc]

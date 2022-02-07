@@ -15,7 +15,6 @@ namespace LobbyRelaySample.ngo
 
         private GameObject m_inGameManagerObj;
         private NetworkManager m_networkManager;
-        //private InGameRunner m_inGameRunner;
 
         private bool m_doesNeedCleanup = false;
         private bool m_hasConnectedViaNGO = false;

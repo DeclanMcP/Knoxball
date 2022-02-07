@@ -17,7 +17,6 @@ public class Game : MonoBehaviour
     public KickCallBack kickCallBack;
 
     public GameObject ball;
-    //public GameObject player;
     public GameObject stadium;
     public GameObject celebration;
     public GameObject mainCamera;
@@ -40,18 +39,12 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        kickButton.customEvent = onKickClicked;
+        kickButton.customEvent = OnKickClicked;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    IEnumerator resetGame() {
+    IEnumerator ResetGame() {
         yield return new WaitForSeconds(2f);
-        resetGameObject(ball, new Vector3(0,0,0.5f));
+        resetGameObject(ball, new Vector3(0,0,0));
         //resetGameObject(player, new Vector3(-2,0,0.5f));
         stadium.GetComponent<StadiumComponent>().Reset();
         StopCelebration();
@@ -65,18 +58,18 @@ public class Game : MonoBehaviour
     public void HomeTeamScored() {
         homeTeamScore++;
         Celebrate();
-        StartCoroutine(resetGame());
+        StartCoroutine(ResetGame());
     }
 
     public void AwayTeamScored() {
         awayTeamScore++;
         Celebrate();
-        StartCoroutine(resetGame());
+        StartCoroutine(ResetGame());
     }
 
     public void Celebrate() {
-        score.text = currentScore();
-        print(currentScore());
+        score.text = CurrentScore();
+        print(CurrentScore());
         celebration.GetComponent<CelebrationComponent>().Celebrate();
         mainCamera.SetActive(false);
     }
@@ -86,17 +79,17 @@ public class Game : MonoBehaviour
         celebration.GetComponent<CelebrationComponent>().StopCelebration();
     }
 
-    string currentScore() {
+    string CurrentScore() {
         return "Home: " + homeTeamScore + ":" + awayTeamScore + " :Away";
     }
 
-    public void onMenuClicked()
+    public void OnMenuClicked()
     {
         print("onMenuClicked!");
         menuOverlay.SetActive(true);
     }
 
-    public void onKickClicked(bool isPressed)
+    public void OnKickClicked(bool isPressed)
     {
         print("onKickClicked!" + isPressed);
         kickCallBack(isPressed);
