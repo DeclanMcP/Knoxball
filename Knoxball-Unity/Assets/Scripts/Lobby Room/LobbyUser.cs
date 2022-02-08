@@ -18,15 +18,22 @@ namespace LobbyRelaySample
         Menu = 16       // User is not in a lobby, in one of the main menus.
     }
 
+    public enum UserTeam
+    {
+        Spectator = 0,
+        Home = 1,
+        Away = 2
+    }
+
     /// <summary>
     /// Data for a local player instance. This will update data and is observed to know when to push local player changes to the entire lobby.
     /// </summary>
     [Serializable]
     public class LobbyUser : Observed<LobbyUser>
     {
-        public LobbyUser(bool isHost = false, string displayName = null, string id = null, EmoteType emote = EmoteType.None, UserStatus userStatus = UserStatus.Menu, bool isApproved = false)
+        public LobbyUser(bool isHost = false, string displayName = null, string id = null, EmoteType emote = EmoteType.None, UserStatus userStatus = UserStatus.Menu, bool isApproved = false, UserTeam userTeam = UserTeam.Spectator)
         {
-            m_data = new UserData(isHost, displayName, id, emote, userStatus, isApproved);
+            m_data = new UserData(isHost, displayName, id, emote, userStatus, isApproved, userTeam);
         }
 
         #region Local UserData
@@ -38,9 +45,10 @@ namespace LobbyRelaySample
             public string ID { get; set; }
             public EmoteType Emote { get; set; }
             public UserStatus UserStatus { get; set; }
+            public UserTeam UserTeam { get; set; }
             public bool IsApproved { get; set; }
 
-            public UserData(bool isHost, string displayName, string id, EmoteType emote, UserStatus userStatus, bool isApproved)
+            public UserData(bool isHost, string displayName, string id, EmoteType emote, UserStatus userStatus, bool isApproved, UserTeam userTeam)
             {
                 IsHost = isHost;
                 DisplayName = displayName;
@@ -48,6 +56,7 @@ namespace LobbyRelaySample
                 Emote = emote;
                 UserStatus = userStatus;
                 IsApproved = isApproved;
+                UserTeam = userTeam;
             }
         }
 
@@ -55,7 +64,7 @@ namespace LobbyRelaySample
 
         public void ResetState()
         {
-            m_data = new UserData(false, m_data.DisplayName, m_data.ID, EmoteType.None, UserStatus.Menu, false); // ID and DisplayName should persist since this might be the local user.
+            m_data = new UserData(false, m_data.DisplayName, m_data.ID, EmoteType.None, UserStatus.Menu, false, UserTeam.Spectator); // ID and DisplayName should persist since this might be the local user.
         }
 
         #endregion
@@ -71,7 +80,8 @@ namespace LobbyRelaySample
             Emote = 4,
             ID = 8,
             UserStatus = 16,
-            IsApproved = 32
+            IsApproved = 32,
+            UserTeam = 64
         }
 
         private UserMembers m_lastChanged;
@@ -145,6 +155,21 @@ namespace LobbyRelaySample
                 {
                     m_userStatus = value;
                     m_lastChanged = UserMembers.UserStatus;
+                    OnChanged(this);
+                }
+            }
+        }
+
+        UserTeam m_userTeam = UserTeam.Spectator;
+        public UserTeam UserTeam
+        {
+            get => m_userTeam;
+            set
+            {
+                if (m_userTeam != value)
+                {
+                    m_userTeam = value;
+                    m_lastChanged = UserMembers.UserTeam;
                     OnChanged(this);
                 }
             }

@@ -21,8 +21,8 @@ namespace LobbyRelaySample.UI
         [SerializeField]
         Image m_HostIcon;
         
-        [SerializeField]
-        Image m_EmoteImage;
+        //[SerializeField]
+        //Image m_EmoteImage;
 
         [SerializeField]
         Sprite[] m_EmoteIcons;
@@ -56,8 +56,9 @@ namespace LobbyRelaySample.UI
         {
             m_DisplayNameText.SetText(observed.DisplayName);
             m_StatusText.SetText(SetStatusFancy(observed.UserStatus));
-            m_EmoteImage.sprite = EmoteIcon(observed.Emote);
+            //m_EmoteImage.sprite = EmoteIcon(observed.Emote);
             m_HostIcon.enabled = observed.IsHost;
+            SwitchToTeam(observed.UserTeam);
         }
         
         /// <summary>
@@ -67,29 +68,29 @@ namespace LobbyRelaySample.UI
         /// m_EmoteIcon[2] = UnAmused
         /// m_EmoteIcon[3] = Tongue
         /// </summary>
-        Sprite EmoteIcon(EmoteType type)
-        {
-            switch (type)
-            {
-                case EmoteType.None:
-                    m_EmoteImage.color = Color.clear;
-                    return null;
-                case EmoteType.Smile:
-                    m_EmoteImage.color = Color.white;
-                    return m_EmoteIcons[0];
-                case EmoteType.Frown:
-                    m_EmoteImage.color = Color.white;
-                    return m_EmoteIcons[1];
-                case EmoteType.Unamused:
-                    m_EmoteImage.color = Color.white;
-                    return m_EmoteIcons[2];
-                case EmoteType.Tongue:
-                    m_EmoteImage.color = Color.white;
-                    return m_EmoteIcons[3];
-                default:
-                    return null;
-            }
-        }
+        //Sprite EmoteIcon(EmoteType type)
+        //{
+        //    switch (type)
+        //    {
+        //        case EmoteType.None:
+        //            m_EmoteImage.color = Color.clear;
+        //            return null;
+        //        case EmoteType.Smile:
+        //            m_EmoteImage.color = Color.white;
+        //            return m_EmoteIcons[0];
+        //        case EmoteType.Frown:
+        //            m_EmoteImage.color = Color.white;
+        //            return m_EmoteIcons[1];
+        //        case EmoteType.Unamused:
+        //            m_EmoteImage.color = Color.white;
+        //            return m_EmoteIcons[2];
+        //        case EmoteType.Tongue:
+        //            m_EmoteImage.color = Color.white;
+        //            return m_EmoteIcons[3];
+        //        default:
+        //            return null;
+        //    }
+        //}
 
         string SetStatusFancy(UserStatus status)
         {
@@ -106,6 +107,12 @@ namespace LobbyRelaySample.UI
                 default:
                     return "";
             }
+        }
+
+        void SwitchToTeam(UserTeam team)
+        {
+            //TODO get a link to the different lists of users, put this user into the correct one
+            Debug.Log("Switch to team! : " + team);
         }
     }
 }

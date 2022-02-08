@@ -151,6 +151,11 @@ namespace LobbyRelaySample
             {   EmoteType emote = (EmoteType)msg;
                 m_localUser.Emote = emote;
             }
+            else if (type == MessageType.UserSetTeam)
+            {
+                UserTeam team = (UserTeam)msg;
+                m_localUser.UserTeam = team;
+            }
             else if (type == MessageType.LobbyUserStatus)
             {   m_localUser.UserStatus = (UserStatus)msg;
             }

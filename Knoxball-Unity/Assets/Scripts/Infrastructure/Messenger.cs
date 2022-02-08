@@ -96,9 +96,10 @@ namespace LobbyRelaySample
         ConfirmInGameState = 101,
         LobbyUserStatus = 102,
         UserSetEmote = 103,
-        ClientUserApproved = 104,
-        ClientUserSeekingDisapproval = 105,
-        EndGame = 106,
+        UserSetTeam = 104,
+        ClientUserApproved = 105,
+        ClientUserSeekingDisapproval = 106,
+        EndGame = 107,
 
         StartCountdown = 200,
         CancelCountdown = 201,

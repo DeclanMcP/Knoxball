@@ -1,13 +1,9 @@
 ﻿<Properties StartupConfiguration="{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}|">
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/InLobbyUserUI.cs">
     <Files>
-      <File FileName="Assets/Scripts/GameMechanics/BallComponent.cs" Line="56" Column="10" />
-      <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="55" Column="52" />
-      <File FileName="Assets/Scripts/GameMechanics/HumanPlayerComponent.cs" Line="44" Column="55" />
-      <File FileName="Assets/Scripts/GameMechanics/PlayerComponent.cs" Line="16" Column="51" />
-      <File FileName="Assets/Scripts/GameMechanics/GameMenuManager.cs" Line="12" Column="18" />
-      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="73" Column="21" />
-      <File FileName="Assets/Scripts/NGO/RelayNGOUtpSetup.cs" Line="84" Column="27" />
+      <File FileName="Assets/Scripts/UI/InLobbyUserList.cs" Line="82" Column="30" />
+      <File FileName="Assets/Scripts/Lobby Room/LocalLobby.cs" Line="25" Column="46" />
+      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" Line="48" Column="21" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -16,12 +12,14 @@
             <Node name="Assets" expanded="True">
               <Node name="Prefabs" expanded="True" />
               <Node name="Scripts" expanded="True">
-                <Node name="GameMechanics" expanded="True">
-                  <Node name="Game.cs" selected="True" />
-                </Node>
+                <Node name="Infrastructure" expanded="True" />
                 <Node name="Lobby" expanded="True" />
                 <Node name="Lobby Room" expanded="True" />
                 <Node name="NGO" expanded="True" />
+                <Node name="Relay" expanded="True" />
+                <Node name="UI" expanded="True">
+                  <Node name="InLobbyUserUI.cs" selected="True" />
+                </Node>
               </Node>
             </Node>
           </Node>

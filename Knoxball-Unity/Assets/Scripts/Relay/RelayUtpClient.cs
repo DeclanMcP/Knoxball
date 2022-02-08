@@ -23,7 +23,7 @@ namespace LobbyRelaySample.relay
         private const float k_heartbeatPeriod = 5;
         private bool m_hasDisposed = false;
 
-        protected enum MsgType { Ping = 0, NewPlayer, PlayerApprovalState, ReadyState, PlayerName, Emote, StartCountdown, CancelCountdown, ConfirmInGame, EndInGame, PlayerDisconnect }
+        protected enum MsgType { Ping = 0, NewPlayer, PlayerApprovalState, ReadyState, PlayerName, Emote, Team, StartCountdown, CancelCountdown, ConfirmInGame, EndInGame, PlayerDisconnect }
 
         public virtual void Initialize(NetworkDriver networkDriver, List<NetworkConnection> connections, LobbyUser localUser, LocalLobby localLobby)
         {
@@ -140,6 +140,11 @@ namespace LobbyRelaySample.relay
                 {
                     EmoteType emote = (EmoteType)msgContents[0];
                     m_localLobby.LobbyUsers[id].Emote = emote;
+                }
+                else if (msgType == MsgType.Team)
+                {
+                    UserTeam team = (UserTeam)msgContents[0];
+                    m_localLobby.LobbyUsers[id].UserTeam = team;
                 }
                 else if (msgType == MsgType.ReadyState)
                 {
