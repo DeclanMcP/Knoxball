@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
+using LobbyRelaySample;
 
 public delegate void KickCallBack(bool isPressed);
 
-public class Game : MonoBehaviour
+public class Game : MonoBehaviour, IReceiveMessages
 {
     int homeTeamScore = 0;
     int awayTeamScore = 0;
@@ -22,6 +22,8 @@ public class Game : MonoBehaviour
     public GameObject mainCamera;
     public GameObject menuOverlay;
     public Text score;
+
+    private LobbyUser m_LocalUser;
 
     public static Game instance;
 
@@ -39,6 +41,7 @@ public class Game : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Locator.Get.Messenger.Subscribe(this);
         kickButton.customEvent = OnKickClicked;
     }
 
@@ -93,5 +96,20 @@ public class Game : MonoBehaviour
     {
         print("onKickClicked!" + isPressed);
         kickCallBack(isPressed);
+    }
+
+    public void OnReceiveMessage(MessageType type, object msg)
+    {
+        //if (type == MessageType.)
+    }
+
+    public LobbyUser LocalUser()
+    {
+        return m_LocalUser;
+    }
+
+    public void OnLocalUserChanged(LobbyUser localUser)
+    {
+        m_LocalUser = localUser;
     }
 }

@@ -173,7 +173,8 @@ namespace LobbyRelaySample
             {   SetGameState((GameState)msg);
             }
             else if (type == MessageType.ConfirmInGameState)
-            {   m_localUser.UserStatus = UserStatus.InGame;
+            {
+                m_localUser.UserStatus = UserStatus.InGame;
                 m_localLobby.State = LobbyState.InGame;
             }
             else if (type == MessageType.EndGame)

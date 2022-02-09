@@ -230,6 +230,8 @@ namespace LobbyRelaySample.relay
                 WriteByte(driver, connection, user.ID, MsgType.Emote, (byte)user.Emote);
             if (0 < (user.LastChanged & LobbyUser.UserMembers.UserStatus))
                 WriteByte(driver, connection, user.ID, MsgType.ReadyState, (byte)user.UserStatus);
+            if (0 < (user.LastChanged & LobbyUser.UserMembers.UserTeam))
+                WriteByte(driver, connection, user.ID, MsgType.Team, (byte)user.UserTeam);
         }
         /// <summary>
         /// Sometimes (e.g. when a new player joins), we need to send out the full current state of this player.
@@ -240,6 +242,7 @@ namespace LobbyRelaySample.relay
             WriteString(driver, connection, user.ID, MsgType.PlayerName, user.DisplayName);
             WriteByte(driver, connection, user.ID, MsgType.Emote, (byte)user.Emote);
             WriteByte(driver, connection, user.ID, MsgType.ReadyState, (byte)user.UserStatus);
+            WriteByte(driver, connection, user.ID, MsgType.Team, (byte)user.UserTeam);
         }
 
         /// <summary>

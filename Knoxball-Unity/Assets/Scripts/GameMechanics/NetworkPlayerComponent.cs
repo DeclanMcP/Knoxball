@@ -1,5 +1,7 @@
-﻿using Unity.Netcode;
+﻿using LobbyRelaySample;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NetworkPlayerComponent : NetworkBehaviour
 {
@@ -18,6 +20,7 @@ public class NetworkPlayerComponent : NetworkBehaviour
 
     float m_ForceStrength = 10.0f;
     private bool m_kickButtonState = false;
+    public Text name;
 
     [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement
@@ -41,7 +44,18 @@ public class NetworkPlayerComponent : NetworkBehaviour
         {
             print("setting kickCallback!");
             Game.instance.kickCallBack = new KickCallBack(OnKick);
-            transform.position = new Vector3(5, 0, 0);
+            if (Game.instance.LocalUser().UserTeam == UserTeam.Home)
+            {
+                transform.position = new Vector3(-5, 0, 0);
+            } else if (Game.instance.LocalUser().UserTeam == UserTeam.Away)
+            {
+                transform.position = new Vector3(5, 0, 0);
+            } else //Spectator
+            {
+                //gameObject.gameObject.collider.enabled = false;
+                gameObject.GetComponent<Collider>().enabled = false;
+            }
+            name.text = Game.instance.LocalUser().DisplayName;
         }
     }
 

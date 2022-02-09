@@ -47,7 +47,7 @@ namespace LobbyRelaySample.lobby
                 {
                     IsHost = lobby.HostId.Equals(player.Id),
                     DisplayName = player.Data?.ContainsKey("DisplayName") == true ? player.Data["DisplayName"].Value : default,
-                    Emote       = player.Data?.ContainsKey("Emote") == true ? (EmoteType)int.Parse(player.Data["Emote"].Value) : default,
+                    Emote = player.Data?.ContainsKey("Emote") == true ? (EmoteType)int.Parse(player.Data["Emote"].Value) : default,
                     UserTeam = player.Data?.ContainsKey("Team") == true ? (UserTeam)int.Parse(player.Data["Team"].Value) : default,
                     UserStatus  = player.Data?.ContainsKey("UserStatus") == true ? (UserStatus)int.Parse(player.Data["UserStatus"].Value) : UserStatus.Connecting,
                     ID = player.Id

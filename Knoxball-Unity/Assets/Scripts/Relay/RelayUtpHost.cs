@@ -84,6 +84,16 @@ namespace LobbyRelaySample.relay
                     WriteByte(m_networkDriver, otherConn, id, msgType, value);
                 }
             }
+            else if (msgType == MsgType.Team)//TODO clean duplication with above else if
+            {
+                byte value = (byte)m_localLobby.LobbyUsers[id].UserTeam;
+                foreach (NetworkConnection otherConn in m_connections)
+                {
+                    if (otherConn == conn)
+                        continue;
+                    WriteByte(m_networkDriver, otherConn, id, msgType, value);
+                }
+            }
             else if (msgType == MsgType.NewPlayer)
                 OnNewConnection(conn, id);
             else if (msgType == MsgType.PlayerDisconnect) // Clients message the host when they intend to disconnect, or else the host ends up keeping the connection open.

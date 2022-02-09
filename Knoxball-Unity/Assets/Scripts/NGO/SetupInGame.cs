@@ -53,6 +53,8 @@ namespace LobbyRelaySample.ngo
                 m_inGameManagerObj.AddComponent<RelayUtpNGOSetupHost>().Initialize(this, m_lobby, () => { m_initializeTransport(transport); m_networkManager.StartHost(); });
             else
                 m_inGameManagerObj.AddComponent<RelayUtpNGOSetupClient>().Initialize(this, m_lobby, () => { m_initializeTransport(transport); m_networkManager.StartClient(); });
+
+            Game.instance.OnLocalUserChanged(m_localUser);
         }
 
         private void OnConnectionVerified()
@@ -64,7 +66,7 @@ namespace LobbyRelaySample.ngo
         {   m_lobby = lobby; // Most of the time this is redundant, but we need to get multiple members of the lobby to the Relay setup components, so might as well just hold onto the whole thing.
         }
         public void OnLocalUserChange(LobbyUser user)
-        {   m_localUser = user; // Same, regarding redundancy.
+        {   m_localUser = user; // Same, regarding redundancy
         }
 
         /// <summary>
