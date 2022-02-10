@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Game Lobby Sample
+  m_text: Knoxball Multiplayer
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 008daa1b26adf2b4ba0fbd11b7f79b6e, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 6f0e377efa860d94999a2ce479cd9614, type: 2}

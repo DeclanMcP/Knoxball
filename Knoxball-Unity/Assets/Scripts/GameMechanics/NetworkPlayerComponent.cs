@@ -1,4 +1,5 @@
 ﻿using LobbyRelaySample;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,7 +21,7 @@ public class NetworkPlayerComponent : NetworkBehaviour
 
     float m_ForceStrength = 10.0f;
     private bool m_kickButtonState = false;
-    public Text name;
+    public Text displayName;
 
     [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement
@@ -35,9 +36,11 @@ public class NetworkPlayerComponent : NetworkBehaviour
     private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
     private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
     private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
+    private NetworkVariable<NetworkString> m_name = new NetworkVariable<NetworkString>(NetworkVariableReadPermission.Everyone, "");
 
     // Start is called before the first frame update
-    void Start()
+
+    void Start()//public override void OnNetworkSpawn()
     {
         //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
         if (IsOwner)
@@ -47,15 +50,26 @@ public class NetworkPlayerComponent : NetworkBehaviour
             if (Game.instance.LocalUser().UserTeam == UserTeam.Home)
             {
                 transform.position = new Vector3(-5, 0, 0);
-            } else if (Game.instance.LocalUser().UserTeam == UserTeam.Away)
+            }
+            else if (Game.instance.LocalUser().UserTeam == UserTeam.Away)
             {
                 transform.position = new Vector3(5, 0, 0);
-            } else //Spectator
+            }
+            else //Spectator
             {
                 //gameObject.gameObject.collider.enabled = false;
                 gameObject.GetComponent<Collider>().enabled = false;
             }
-            name.text = Game.instance.LocalUser().DisplayName;
+
+            if (IsDisplayNameAvailable())
+            {
+                Debug.Log("DisplayName: " + Game.instance.LocalUser().DisplayName);
+                displayName.text = Game.instance.LocalUser().DisplayName;//m_name.Value;
+            }
+        }
+        else
+        {
+            displayName.text = m_name.Value;
         }
     }
 
@@ -87,6 +101,7 @@ public class NetworkPlayerComponent : NetworkBehaviour
             UpdatePlayerInput();
             UpdatePlayerPosition();
             UpdatePlayerVelocity();
+            UpdatePlayerName();
         }
         else
         {
@@ -94,6 +109,7 @@ public class NetworkPlayerComponent : NetworkBehaviour
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             playerComponent.OnKickStateChange(m_kicking.Value);
             GetComponent<Rigidbody>().velocity = m_velocity.Value;
+            displayName.text = m_name.Value;
         }
     }
 
@@ -161,4 +177,40 @@ public class NetworkPlayerComponent : NetworkBehaviour
     {
         m_kicking.Value = kicking;
     }
+
+    void UpdatePlayerName()
+    {
+        if (IsDisplayNameAvailable())
+        {
+            SetName_ServerRpc(Game.instance.LocalUser().DisplayName);
+        }
+    }
+
+    [ServerRpc]
+    private void SetName_ServerRpc(string name)
+    {
+        m_name.Value = name;
+    }
+
+    private bool IsDisplayNameAvailable()
+    {
+        return !(Game.instance == null || Game.instance.LocalUser() == null);
+    }
+}
+
+public struct NetworkString : INetworkSerializable
+{
+    private FixedString32Bytes info;
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref info);
+    }
+
+    public override string ToString()
+    {
+        return info.ToString();
+    }
+
+    public static implicit operator string(NetworkString s) => s.ToString();
+    public static implicit operator NetworkString(string s) => new NetworkString() { info = new FixedString32Bytes(s) };
 }

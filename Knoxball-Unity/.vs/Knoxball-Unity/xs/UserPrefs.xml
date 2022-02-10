@@ -1,15 +1,16 @@
 ﻿<Properties StartupConfiguration="{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/NGO/RelayNGOUtpSetup.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Prefabs/Multiplayer UI/MainMenuCanvas.prefab">
     <Files>
       <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" Line="28" Column="20" />
       <File FileName="Assets/Scripts/UI/InLobbyUserList.cs" Line="97" Column="75" />
       <File FileName="Assets/Scripts/Lobby Room/LocalLobby.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Lobby Room/GameManager.cs" Line="176" Column="14" />
-      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="53" Column="79" />
+      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="57" Column="59" />
       <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="17" Column="25" />
-      <File FileName="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" Line="52" Column="14" />
+      <File FileName="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" Line="112" Column="45" />
       <File FileName="Assets/Scripts/Lobby Room/LobbyUser.cs" Line="32" Column="18" />
       <File FileName="Assets/Scripts/NGO/RelayNGOUtpSetup.cs" Line="23" Column="21" />
+      <File FileName="Assets/Prefabs/Multiplayer UI/MainMenuCanvas.prefab" Line="143" Column="27" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,13 +19,13 @@
             <Node name="Assets" expanded="True">
               <Node name="Prefabs" expanded="True" />
               <Node name="Scripts" expanded="True">
-                <Node name="GameMechanics" expanded="True" />
+                <Node name="GameMechanics" expanded="True">
+                  <Node name="NetworkPlayerComponent.cs" selected="True" />
+                </Node>
                 <Node name="Infrastructure" expanded="True" />
                 <Node name="Lobby" expanded="True" />
                 <Node name="Lobby Room" expanded="True" />
-                <Node name="NGO" expanded="True">
-                  <Node name="RelayNGOUtpSetup.cs" selected="True" />
-                </Node>
+                <Node name="NGO" expanded="True" />
                 <Node name="Relay" expanded="True" />
                 <Node name="UI" expanded="True" />
               </Node>
