@@ -24,6 +24,7 @@ public class Game : MonoBehaviour, IReceiveMessages
     public Text score;
 
     private LobbyUser m_LocalUser;
+    public NetworkPlayerComponent LocalPlayer;//TODO move all network logic here
 
     public static Game instance;
 
@@ -47,13 +48,13 @@ public class Game : MonoBehaviour, IReceiveMessages
 
     IEnumerator ResetGame() {
         yield return new WaitForSeconds(2f);
-        resetGameObject(ball, new Vector3(0,0,0));
-        //resetGameObject(player, new Vector3(-2,0,0.5f));
+        ResetGameObject(ball, new Vector3(0,0,0));
+        LocalPlayer.ResetLocation();
         stadium.GetComponent<StadiumComponent>().Reset();
         StopCelebration();
     }
 
-    void resetGameObject(GameObject gameObject, Vector3 position) {
+    void ResetGameObject(GameObject gameObject, Vector3 position) {
         gameObject.transform.position = position;
         gameObject.GetComponent<Rigidbody>().velocity = new Vector3(0,0,0);
     }

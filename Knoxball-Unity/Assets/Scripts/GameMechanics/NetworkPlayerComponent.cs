@@ -2,7 +2,7 @@
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class NetworkPlayerComponent : NetworkBehaviour
 {
@@ -21,7 +21,7 @@ public class NetworkPlayerComponent : NetworkBehaviour
 
     float m_ForceStrength = 10.0f;
     private bool m_kickButtonState = false;
-    public Text displayName;
+    public TMP_Text displayName;
 
     [SerializeField, Tooltip("Move the player using keys.")]
     private KeyboardKeyMovement m_KeyboardKeyMovement = new KeyboardKeyMovement
@@ -45,21 +45,8 @@ public class NetworkPlayerComponent : NetworkBehaviour
         //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
         if (IsOwner)
         {
-            print("setting kickCallback!");
-            Game.instance.kickCallBack = new KickCallBack(OnKick);
-            if (Game.instance.LocalUser().UserTeam == UserTeam.Home)
-            {
-                transform.position = new Vector3(-5, 0, 0);
-            }
-            else if (Game.instance.LocalUser().UserTeam == UserTeam.Away)
-            {
-                transform.position = new Vector3(5, 0, 0);
-            }
-            else //Spectator
-            {
-                //gameObject.gameObject.collider.enabled = false;
-                gameObject.GetComponent<Collider>().enabled = false;
-            }
+            Game.instance.LocalPlayer = this;
+            ResetLocation();
 
             if (IsDisplayNameAvailable())
             {
@@ -195,6 +182,25 @@ public class NetworkPlayerComponent : NetworkBehaviour
     private bool IsDisplayNameAvailable()
     {
         return !(Game.instance == null || Game.instance.LocalUser() == null);
+    }
+
+    public void ResetLocation()
+    {
+        print("setting kickCallback!");
+        Game.instance.kickCallBack = new KickCallBack(OnKick);
+        if (Game.instance.LocalUser().UserTeam == UserTeam.Home)
+        {
+            transform.position = new Vector3(-5, 0, 0);
+        }
+        else if (Game.instance.LocalUser().UserTeam == UserTeam.Away)
+        {
+            transform.position = new Vector3(5, 0, 0);
+        }
+        else //Spectator
+        {
+            //gameObject.gameObject.collider.enabled = false;
+            gameObject.GetComponent<Collider>().enabled = false;
+        }
     }
 }
 

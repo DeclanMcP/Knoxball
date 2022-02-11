@@ -249,7 +249,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 8
+  m_Constraints: 120
   m_CollisionDetection: 0
 --- !u!114 &3082133430888106594
 MonoBehaviour:
@@ -276,7 +276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   kick: 32
-  displayName: {fileID: 0}
+  displayName: {fileID: 4194746006210157885}
   m_KeyboardKeyMovement:
     enabled: 1
     up: 273
