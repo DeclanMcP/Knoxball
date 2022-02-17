@@ -1,17 +1,19 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 public delegate void KickCallBack(bool isPressed);
 
 namespace Knoxball
 {
-    public class Game : MonoBehaviour, IReceiveMessages
+    public class Game : NetworkBehaviour, IReceiveMessages
     {
         int homeTeamScore = 0;
         int awayTeamScore = 0;
+        private NetworkVariable<int> m_homeTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
+        private NetworkVariable<int> m_awayTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
+
 
         public VariableJoystick variableJoystick;
         public KickButton kickButton;
@@ -25,8 +27,7 @@ namespace Knoxball
         public Text score;
 
         private LobbyUser m_LocalUser;
-        public NetworkPlayerComponent LocalPlayer;//TODO move all network logic here
-
+        public NetworkPlayerComponent LocalPlayer;
         public static Game instance;
 
         private void Awake()
@@ -45,6 +46,21 @@ namespace Knoxball
         {
             Locator.Get.Messenger.Subscribe(this);
             kickButton.customEvent = OnKickClicked;
+            score.text = CurrentScore();
+        }
+
+        void Update()
+        {
+            if (homeTeamScore != m_homeTeamScore.Value)
+            {
+                homeTeamScore = m_homeTeamScore.Value;
+                score.text = CurrentScore();
+            }
+            if (awayTeamScore != m_awayTeamScore.Value)
+            {
+                awayTeamScore = m_awayTeamScore.Value;
+                score.text = CurrentScore();
+            }
         }
 
         IEnumerator ResetGame()
@@ -64,16 +80,36 @@ namespace Knoxball
 
         public void HomeTeamScored()
         {
-            homeTeamScore++;
+            if (IsHost)
+            {
+                SetHomeTeamScore_ServerRpc(m_homeTeamScore.Value+1);
+            }
             Celebrate();
             StartCoroutine(ResetGame());
         }
 
+
+        [ServerRpc]
+        private void SetHomeTeamScore_ServerRpc(int score)
+        {
+            m_homeTeamScore.Value = score;
+        }
+
         public void AwayTeamScored()
         {
-            awayTeamScore++;
+            if (IsHost)
+            {
+                SetAwayTeamScore_ServerRpc(m_awayTeamScore.Value + 1);
+            }
             Celebrate();
             StartCoroutine(ResetGame());
+        }
+
+
+        [ServerRpc]
+        private void SetAwayTeamScore_ServerRpc(int score)
+        {
+            m_awayTeamScore.Value = score;
         }
 
         public void Celebrate()
