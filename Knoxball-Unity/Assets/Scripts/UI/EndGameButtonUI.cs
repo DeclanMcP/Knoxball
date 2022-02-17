@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// After connecting to Relay, the host can use this to end the game, returning to the regular lobby state.

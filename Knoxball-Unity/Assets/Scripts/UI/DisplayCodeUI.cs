@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// Watches a lobby or relay code for updates, displaying the current code to lobby members.

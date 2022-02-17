@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// User permission type. It's a flag enum to allow for the Inspector to select multiples for various UI features.

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Current state of the user in the lobby.

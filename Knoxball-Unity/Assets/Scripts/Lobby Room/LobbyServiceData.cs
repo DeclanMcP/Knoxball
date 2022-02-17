@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Used when displaying the lobby list, to indicate when we are awaiting an updated lobby query.

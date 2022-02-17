@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// After all players ready up for the game, this will show the countdown that occurs.

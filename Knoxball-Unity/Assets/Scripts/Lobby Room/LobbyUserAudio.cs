@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     [SerializeField]
     public class LobbyUserAudio

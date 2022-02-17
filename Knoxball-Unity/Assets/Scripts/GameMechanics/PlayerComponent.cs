@@ -2,47 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerComponent : MonoBehaviour
+namespace Knoxball
 {
-    Material material;
-    private bool kicking = false;
-    private Color kickColor;
-    private Color normalColor;
-
-    void Start()
+    public class PlayerComponent : MonoBehaviour
     {
-        material = GetComponent<Renderer>().material;
-        normalColor = material.color;
-        kickColor = material.color + new Color(0.5f,0.5f,0.5f);
-        //material.SetColor("_EmissionColor", material.color);
-    }
+        Material material;
+        private bool kicking = false;
+        private Color kickColor;
+        private Color normalColor;
 
-    public bool IsKicking()
-    {
-        return this.kicking;
-    }
-
-    public void OnKickStateChange(bool kicking)
-    {
-        if (kicking && !this.kicking)
+        void Start()
         {
-            Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
-            LightUp();
+            material = GetComponent<Renderer>().material;
+            normalColor = material.color;
+            kickColor = material.color + new Color(0.5f, 0.5f, 0.5f);
+            //material.SetColor("_EmissionColor", material.color);
         }
-        else if (!kicking && this.kicking)
+
+        public bool IsKicking()
         {
-            LightDown();
+            return this.kicking;
         }
-        this.kicking = kicking;
-    }
 
-    void LightUp() {
-        material.SetColor("_Color", kickColor);
-        //material.EnableKeyword("_EMISSION");
-    }
+        public void OnKickStateChange(bool kicking)
+        {
+            if (kicking && !this.kicking)
+            {
+                Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
+                LightUp();
+            }
+            else if (!kicking && this.kicking)
+            {
+                LightDown();
+            }
+            this.kicking = kicking;
+        }
 
-    void LightDown() {
-        material.SetColor("_Color", normalColor);
-        //material.DisableKeyword("_EMISSION");
+        void LightUp()
+        {
+            material.SetColor("_Color", kickColor);
+            //material.EnableKeyword("_EMISSION");
+        }
+
+        void LightDown()
+        {
+            material.SetColor("_Color", normalColor);
+            //material.DisableKeyword("_EMISSION");
+        }
     }
 }

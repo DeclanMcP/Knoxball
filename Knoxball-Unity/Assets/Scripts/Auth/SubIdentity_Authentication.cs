@@ -2,7 +2,7 @@
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 
-namespace LobbyRelaySample.Auth
+namespace Knoxball.Auth
 {
     /// <summary>
     /// The Authentication package will sign in asynchronously and anonymously. When complete, we will need to store the generated ID.

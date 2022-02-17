@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// Displays the IP when connected to Relay.

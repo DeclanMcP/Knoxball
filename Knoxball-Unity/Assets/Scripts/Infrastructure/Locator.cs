@@ -1,8 +1,8 @@
-using LobbyRelaySample.Auth;
+using Knoxball.Auth;
 using System;
 using System.Collections.Generic;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Anything which provides itself to a Locator can then be globally accessed. This should be a single access point for things that *want* to be singleton (that is,

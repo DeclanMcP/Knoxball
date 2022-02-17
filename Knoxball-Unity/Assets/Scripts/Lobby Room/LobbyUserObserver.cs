@@ -1,4 +1,4 @@
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Holds an instance of a lobbyplayer, and implements hooks for the UI to interact with.

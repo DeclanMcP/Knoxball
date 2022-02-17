@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     public enum JoinCreateTabs
     {

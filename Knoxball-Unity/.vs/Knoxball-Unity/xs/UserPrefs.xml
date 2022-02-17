@@ -1,16 +1,12 @@
 ﻿<Properties StartupConfiguration="{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Prefabs/Multiplayer UI/MainMenuCanvas.prefab">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameMechanics/Game.cs">
     <Files>
-      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" Line="28" Column="20" />
-      <File FileName="Assets/Scripts/UI/InLobbyUserList.cs" Line="97" Column="75" />
-      <File FileName="Assets/Scripts/Lobby Room/LocalLobby.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Lobby Room/GameManager.cs" Line="176" Column="14" />
-      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="57" Column="59" />
-      <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="17" Column="25" />
-      <File FileName="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" Line="112" Column="45" />
-      <File FileName="Assets/Scripts/Lobby Room/LobbyUser.cs" Line="32" Column="18" />
-      <File FileName="Assets/Scripts/NGO/RelayNGOUtpSetup.cs" Line="23" Column="21" />
-      <File FileName="Assets/Prefabs/Multiplayer UI/MainMenuCanvas.prefab" Line="143" Column="27" />
+      <File FileName="Assets/Scripts/GameMechanics/CelebrationComponent.cs" Line="35" Column="2" IsPinned="True" />
+      <File FileName="Assets/Scripts/GameMechanics/BallComponent.cs" Line="82" Column="2" />
+      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" />
+      <File FileName="Assets/Scripts/GameMechanics/PlayerComponent.cs" Line="53" Column="2" />
+      <File FileName="Assets/Scripts/GameMechanics/StadiumComponent.cs" Line="28" Column="2" />
+      <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="5" Column="35" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -20,7 +16,7 @@
               <Node name="Prefabs" expanded="True" />
               <Node name="Scripts" expanded="True">
                 <Node name="GameMechanics" expanded="True">
-                  <Node name="NetworkPlayerComponent.cs" selected="True" />
+                  <Node name="Game.cs" selected="True" />
                 </Node>
                 <Node name="Infrastructure" expanded="True" />
                 <Node name="Lobby" expanded="True" />
@@ -37,7 +33,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e941e162-3a7f-46b9-8ec6-a173a4dee7f3" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="c6bda639-316a-4ecf-9624-bcbd92d24fc6" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

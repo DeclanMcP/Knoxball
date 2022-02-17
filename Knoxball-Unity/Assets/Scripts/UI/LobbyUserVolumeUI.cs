@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     public class LobbyUserVolumeUI : MonoBehaviour
     {

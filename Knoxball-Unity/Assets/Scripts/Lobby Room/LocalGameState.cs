@@ -1,6 +1,6 @@
 using System;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Current state of the local game.

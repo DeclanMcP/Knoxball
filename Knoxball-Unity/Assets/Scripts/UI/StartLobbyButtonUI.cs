@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Main menu start button.

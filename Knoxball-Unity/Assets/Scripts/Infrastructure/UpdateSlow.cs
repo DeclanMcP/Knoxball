@@ -2,7 +2,7 @@
 using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     public delegate void UpdateMethod(float dt);
 

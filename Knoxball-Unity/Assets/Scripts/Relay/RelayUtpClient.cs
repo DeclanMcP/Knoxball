@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Networking.Transport;
 using UnityEngine;
 
-namespace LobbyRelaySample.relay
+namespace Knoxball.relay
 {
     public enum Approval { OK = 0, GameAlreadyStarted }
 

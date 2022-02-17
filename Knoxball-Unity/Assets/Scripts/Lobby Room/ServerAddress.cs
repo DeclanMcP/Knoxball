@@ -1,4 +1,4 @@
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Just for displaying the anonymous Relay IP.

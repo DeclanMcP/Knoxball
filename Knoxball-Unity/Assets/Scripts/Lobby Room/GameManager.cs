@@ -1,10 +1,10 @@
-using LobbyRelaySample.relay;
+using Knoxball.relay;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// Sets up and runs the entire sample.

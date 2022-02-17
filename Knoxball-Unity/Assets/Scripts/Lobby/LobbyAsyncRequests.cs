@@ -1,10 +1,10 @@
-﻿using LobbyRelaySample.lobby;
+﻿using Knoxball.lobby;
 using System;
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 
-namespace LobbyRelaySample
+namespace Knoxball
 {
     /// <summary>
     /// An abstraction layer between the direct calls into the Lobby API and the outcomes you actually want. E.g. you can request to get a readable list of 

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace LobbyRelaySample.UI
+namespace Knoxball.UI
 {
     /// <summary>
     /// Observes the Lobby request rate limits and changes the visibility of a UIPanelBase to suit.
