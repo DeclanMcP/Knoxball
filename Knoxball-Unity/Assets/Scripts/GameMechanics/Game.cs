@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
+using TMPro;
 
 public delegate void KickCallBack(bool isPressed);
 
@@ -24,11 +25,13 @@ namespace Knoxball
         public GameObject celebration;
         public GameObject mainCamera;
         public GameObject menuOverlay;
-        public Text score;
+        public TMP_Text score;
 
         private LobbyUser m_LocalUser;
         public NetworkPlayerComponent LocalPlayer;
         public static Game instance;
+        public TMP_Text timeText;
+        float timeRemaining = 120;
 
         private void Awake()
         {
@@ -61,6 +64,14 @@ namespace Knoxball
                 awayTeamScore = m_awayTeamScore.Value;
                 score.text = CurrentScore();
             }
+
+            timeRemaining -= Time.deltaTime;
+            timeRemaining = Mathf.Max(timeRemaining, 0);
+            if (timeRemaining <= 0 && IsHost)
+            {
+                Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
+            }
+            DisplayTime(timeRemaining);
         }
 
         IEnumerator ResetGame()
@@ -128,7 +139,7 @@ namespace Knoxball
 
         string CurrentScore()
         {
-            return "Home: " + homeTeamScore + ":" + awayTeamScore + " :Away";
+            return "" + homeTeamScore + ":" + awayTeamScore + "";
         }
 
         public void OnMenuClicked()
@@ -151,6 +162,13 @@ namespace Knoxball
         public LobbyUser LocalUser()
         {
             return m_LocalUser;
+        }
+
+        void DisplayTime(float timeToDisplay)
+        {
+            float minutes = Mathf.FloorToInt(timeToDisplay / 60);
+            float seconds = Mathf.FloorToInt(timeToDisplay % 60);
+            timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
 
         public void OnLocalUserChanged(LobbyUser localUser)
