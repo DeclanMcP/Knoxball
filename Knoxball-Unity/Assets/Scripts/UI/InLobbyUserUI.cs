@@ -58,7 +58,6 @@ namespace Knoxball.UI
             m_StatusText.SetText(SetStatusFancy(observed.UserStatus));
             //m_EmoteImage.sprite = EmoteIcon(observed.Emote);
             m_HostIcon.enabled = observed.IsHost;
-            SwitchToTeam(observed.UserTeam);
         }
         
         /// <summary>
@@ -107,12 +106,6 @@ namespace Knoxball.UI
                 default:
                     return "";
             }
-        }
-
-        void SwitchToTeam(UserTeam team)
-        {
-            //TODO get a link to the different lists of users, put this user into the correct one
-            Debug.Log("Switch to team! : " + team);
         }
     }
 }

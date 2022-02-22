@@ -16,7 +16,7 @@ namespace Knoxball
     /// </summary>
     public class LogHandler : ILogHandler
     {
-        public LogMode mode = LogMode.Critical;
+        public LogMode mode = LogMode.Verbose;
 
         static LogHandler s_instance;
         ILogHandler m_DefaultLogHandler = Debug.unityLogger.logHandler; // Store the default logger that prints to console.
@@ -25,7 +25,7 @@ namespace Knoxball
         {
             if (s_instance != null) return s_instance;
             s_instance = new LogHandler();
-            Debug.unityLogger.logHandler = s_instance;
+            //Debug.unityLogger.logHandler = s_instance;
             return s_instance;
         }
 

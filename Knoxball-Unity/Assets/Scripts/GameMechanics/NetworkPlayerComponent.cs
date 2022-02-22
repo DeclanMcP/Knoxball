@@ -41,7 +41,7 @@ namespace Knoxball
 
         // Start is called before the first frame update
 
-        void Start()//public override void OnNetworkSpawn()
+        public override void OnNetworkSpawn()
         {
             //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
             if (IsOwner)
@@ -69,7 +69,6 @@ namespace Knoxball
 
         void HandleKickEvent()
         {
-            print("KICK!");
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             var previousKicking = playerComponent.IsKicking();
             playerComponent.OnKickStateChange(m_kickButtonState || Input.GetKey(kick));
@@ -105,7 +104,6 @@ namespace Knoxball
         {
             var force = GenerateKeypadForce() + GenerateJoystickForce();
             gameObject.GetComponent<Rigidbody>().AddForce(force, ForceMode.VelocityChange);
-            Debug.Log("Calling adding force " + force.x + "," + force.y);
             HandleKickEvent();
         }
 

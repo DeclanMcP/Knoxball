@@ -1,12 +1,16 @@
 ﻿<Properties StartupConfiguration="{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/GameMechanics/Game.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/InLobbyUserUI.cs">
     <Files>
-      <File FileName="Assets/Scripts/GameMechanics/CelebrationComponent.cs" Line="35" Column="2" IsPinned="True" />
-      <File FileName="Assets/Scripts/GameMechanics/BallComponent.cs" Line="82" Column="2" />
-      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" />
-      <File FileName="Assets/Scripts/GameMechanics/PlayerComponent.cs" Line="53" Column="2" />
-      <File FileName="Assets/Scripts/GameMechanics/StadiumComponent.cs" Line="28" Column="2" />
-      <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="5" Column="35" />
+      <File FileName="../../com.unity.services.samples.game-lobby/Assets/Scripts/NGO/InGameRunner.cs" Line="140" Column="10" />
+      <File FileName="Assets/Scripts/NGO/SetupInGame.cs" Line="46" Column="1" />
+      <File FileName="Assets/Scripts/GameMechanics/Game.cs" Line="277" Column="95" />
+      <File FileName="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" Line="61" Column="14" />
+      <File FileName="Assets/Scripts/GameMechanics/WinnerAnnouncement.cs" Line="24" Column="56" />
+      <File FileName="Assets/Scripts/GameMechanics/MenuManager.cs" Line="24" Column="1" />
+      <File FileName="Library/PackageCache/com.unity.ide.visualstudio@2.0.11/Editor/VisualStudioIntegration.cs" Line="149" Column="1" />
+      <File FileName="Assets/Scripts/Infrastructure/AsyncRequest.cs" Line="14" Column="73" />
+      <File FileName="Assets/Scripts/Infrastructure/LogHandler.cs" Line="28" Column="15" />
+      <File FileName="Assets/Scripts/UI/InLobbyUserUI.cs" Line="112" Column="26" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,15 +19,15 @@
             <Node name="Assets" expanded="True">
               <Node name="Prefabs" expanded="True" />
               <Node name="Scripts" expanded="True">
-                <Node name="GameMechanics" expanded="True">
-                  <Node name="Game.cs" selected="True" />
-                </Node>
+                <Node name="Auth" expanded="True" />
+                <Node name="GameMechanics" expanded="True" />
                 <Node name="Infrastructure" expanded="True" />
                 <Node name="Lobby" expanded="True" />
                 <Node name="Lobby Room" expanded="True" />
                 <Node name="NGO" expanded="True" />
-                <Node name="Relay" expanded="True" />
-                <Node name="UI" expanded="True" />
+                <Node name="UI" expanded="True">
+                  <Node name="InLobbyUserUI.cs" selected="True" />
+                </Node>
               </Node>
             </Node>
           </Node>
@@ -33,7 +37,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="c6bda639-316a-4ecf-9624-bcbd92d24fc6" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="2dcb3214-0022-4d1e-b937-ef8182b0cf16" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -47,7 +47,7 @@
   <PropertyGroup>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <UnityProjectGenerator>Package</UnityProjectGenerator>
-    <UnityProjectGeneratorVersion>2.0.11</UnityProjectGeneratorVersion>
+    <UnityProjectGeneratorVersion>2.0.14</UnityProjectGeneratorVersion>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>iOS:9</UnityBuildTarget>
     <UnityVersion>2021.1.24f1</UnityVersion>
@@ -88,6 +88,7 @@
     <Compile Include="Assets/Scripts/UI/RelayAddressUI.cs" />
     <Compile Include="Assets/Scripts/Lobby Room/GameManager.cs" />
     <Compile Include="Assets/Scripts/UI/ExitButtonUI.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/GameNetworkManager.cs" />
     <Compile Include="Assets/Scripts/GameMechanics/BallComponent.cs" />
     <Compile Include="Assets/Scripts/UI/LobbyNameUI.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Assets/Scripts/Lobby Room/LobbyUser.cs" />
     <Compile Include="Assets/Scripts/Auth/NameGenerator.cs" />
     <Compile Include="Assets/Scripts/Auth/SubIdentity_Authentication.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/WinnerAnnouncement.cs" />
     <Compile Include="Assets/Scripts/UI/StartLobbyButtonUI.cs" />
     <Compile Include="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" />
     <Compile Include="Assets/Scripts/UI/EndGameButtonUI.cs" />

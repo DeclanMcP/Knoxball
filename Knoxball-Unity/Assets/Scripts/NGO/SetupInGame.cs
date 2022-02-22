@@ -45,8 +45,7 @@ namespace Knoxball.ngo
         {
             m_inGameManagerObj = GameObject.Instantiate(m_prefabNetworkManager);
             m_networkManager = m_inGameManagerObj.GetComponentInChildren<NetworkManager>();
-            //m_inGameRunner = m_inGameManagerObj.GetComponentInChildren<InGameRunner>();
-            //m_inGameRunner.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser);
+            Game.instance.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser);
 
             UnityTransport transport = m_inGameManagerObj.GetComponentInChildren<UnityTransport>();
             if (m_localUser.IsHost)
@@ -54,7 +53,6 @@ namespace Knoxball.ngo
             else
                 m_inGameManagerObj.AddComponent<RelayUtpNGOSetupClient>().Initialize(this, m_lobby, () => { m_initializeTransport(transport); m_networkManager.StartClient(); });
 
-            Game.instance.OnLocalUserChanged(m_localUser);
         }
 
         private void OnConnectionVerified()
