@@ -50,7 +50,7 @@ namespace Knoxball
         public TMP_Text timeText;
         public TMP_Text score;
 
-        float timeRemaining = 120;
+        float timeRemaining = 10;
         private LobbyUser m_LocalUser;
         private Action m_onConnectionVerified, m_onGameEnd;
         private int m_expectedPlayerCount;
@@ -109,15 +109,14 @@ namespace Knoxball
             {
                 timeRemaining -= Time.deltaTime;
                 timeRemaining = Mathf.Max(timeRemaining, 0);
+                DisplayTime(timeRemaining);
             }
             if (timeRemaining <= 0 && IsHost)
             {
                 m_InGameState = InGameState.Ending;
                 AnounceWinner();
-                EndGame();
-                m_onGameEnd();
+                StartCoroutine(EndGame());
             }
-            DisplayTime(timeRemaining);
         }
 
         void AnounceWinner()
@@ -142,7 +141,8 @@ namespace Knoxball
         {
             yield return new WaitForSeconds(2f);
             m_InGameState = InGameState.Finished;
-            Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
+            m_onGameEnd();
+            //Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
         }
 
         IEnumerator ResetGame()
@@ -152,6 +152,7 @@ namespace Knoxball
             LocalPlayer.ResetLocation();
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
+            m_InGameState = InGameState.Playing;
         }
 
         void ResetGameObject(GameObject gameObject, Vector3 position)
@@ -196,6 +197,7 @@ namespace Knoxball
 
         public void Celebrate()
         {
+            m_InGameState = InGameState.GoalCelebrating;
             score.text = CurrentScore();
             print(CurrentScore());
             celebration.GetComponent<CelebrationComponent>().Celebrate();
