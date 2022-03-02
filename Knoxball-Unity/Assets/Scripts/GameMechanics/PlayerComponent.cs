@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Knoxball
@@ -10,6 +8,7 @@ namespace Knoxball
         private bool kicking = false;
         private Color kickColor;
         private Color normalColor;
+        public GameObject halo;
 
         void Start()
         {
@@ -48,6 +47,11 @@ namespace Knoxball
         {
             material.SetColor("_Color", normalColor);
             //material.DisableKeyword("_EMISSION");
+        }
+
+        public void SetLocalPlayer(bool isLocalPlayer)
+        {
+            halo.SetActive(isLocalPlayer);
         }
     }
 }

@@ -11,8 +11,8 @@ namespace Knoxball
         private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero);
 
         float maxSpeed = 10.0f;
-        float m_DistanceForKick = 5.0f;
-        float m_kickStrength = 2500.0f;
+        float m_DistanceForKick = 2.0f;
+        float m_kickStrength = 10000.0f;
         // Start is called before the first frame update
         void Start()
         {

@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using TMPro;
+using UnityStandardAssets._2D;
 
 namespace Knoxball
 {
@@ -43,10 +44,12 @@ namespace Knoxball
 
         public override void OnNetworkSpawn()
         {
-            //variableJoystick = (VariableJoystick)GameObject.Find("YourPanelName");
             if (IsOwner)
             {
                 Game.instance.LocalPlayer = this;
+                var followCamera = Game.instance.mainCamera.GetComponent<Camera2DFollow>();
+                followCamera.target2 = transform;
+
                 ResetLocation();
 
                 if (IsDisplayNameAvailable())
@@ -59,6 +62,9 @@ namespace Knoxball
             {
                 displayName.text = m_name.Value;
             }
+
+            var playerComponent = gameObject.GetComponent<PlayerComponent>();
+            playerComponent.SetLocalPlayer(IsOwner);
         }
 
         void OnKick(bool isPressed)
@@ -81,10 +87,8 @@ namespace Knoxball
         // Update is called once per frame
         void FixedUpdate()
         {
-            print("Calling update on " + gameObject);
             if (IsOwner)
             {
-                print("Calling IsOwner update on " + gameObject);
                 UpdatePlayerInput();
                 UpdatePlayerPosition();
                 UpdatePlayerVelocity();

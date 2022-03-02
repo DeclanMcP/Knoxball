@@ -50,7 +50,7 @@ namespace Knoxball
         public TMP_Text timeText;
         public TMP_Text score;
 
-        float timeRemaining = 10;
+        float timeRemaining = 180;
         private LobbyUser m_LocalUser;
         private Action m_onConnectionVerified, m_onGameEnd;
         private int m_expectedPlayerCount;
