@@ -34,6 +34,9 @@ namespace Knoxball
         private NetworkVariable<int> m_homeTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
         private NetworkVariable<int> m_awayTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
 
+        private NetworkVariable<float> m_timeRemaining = new NetworkVariable<float>(NetworkVariableReadPermission.Everyone, 180);
+        private NetworkVariable<InGameState> m_InGameState = new NetworkVariable<InGameState>(NetworkVariableReadPermission.Everyone, InGameState.Starting);
+
         public VariableJoystick variableJoystick;
         public KickButton kickButton;
         public KickCallBack kickCallBack;
@@ -43,7 +46,7 @@ namespace Knoxball
         public GameObject celebration;
         public GameObject mainCamera;
         public GameObject menuOverlay;
-        public NetworkPlayerComponent LocalPlayer;
+        public NetworkPlayerComponent localPlayer;
         public WinnerAnnouncement winnerAnnouncement;
 
         //MOVE TO THE GAME UI!!
@@ -51,10 +54,11 @@ namespace Knoxball
         public TMP_Text score;
 
         float timeRemaining = 180;
+        private InGameState inGameState;
+
         private LobbyUser m_LocalUser;
         private Action m_onConnectionVerified, m_onGameEnd;
         private int m_expectedPlayerCount;
-        private InGameState m_InGameState;
 
         private void Awake()
         {
@@ -94,18 +98,37 @@ namespace Knoxball
 
         void Update()
         {
+            CheckHomeScore();
+            CheckAwayScore();
+            CheckInGameState();
+        }
+
+        void CheckHomeScore()
+        {
             if (homeTeamScore != m_homeTeamScore.Value)
             {
                 homeTeamScore = m_homeTeamScore.Value;
                 score.text = CurrentScore();
             }
+        }
+
+        void CheckAwayScore()
+        {
             if (awayTeamScore != m_awayTeamScore.Value)
             {
                 awayTeamScore = m_awayTeamScore.Value;
                 score.text = CurrentScore();
             }
+        }
 
-            if (m_InGameState == InGameState.Playing)
+        void CheckInGameState()
+        {
+            if (inGameState != m_InGameState.Value)
+            {
+                inGameState = m_InGameState.Value;
+                timeRemaining = m_timeRemaining.Value;
+            }
+            if (inGameState == InGameState.Playing)
             {
                 timeRemaining -= Time.deltaTime;
                 timeRemaining = Mathf.Max(timeRemaining, 0);
@@ -113,7 +136,10 @@ namespace Knoxball
             }
             if (timeRemaining <= 0 && IsHost)
             {
-                m_InGameState = InGameState.Ending;
+                SetInGameState(InGameState.Ending);
+            }
+            if (inGameState == InGameState.Ending)
+            {
                 AnounceWinner();
                 StartCoroutine(EndGame());
             }
@@ -140,7 +166,7 @@ namespace Knoxball
         IEnumerator EndGame()
         {
             yield return new WaitForSeconds(2f);
-            m_InGameState = InGameState.Finished;
+            SetInGameState(InGameState.Finished);
             m_onGameEnd();
             //Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
         }
@@ -149,10 +175,10 @@ namespace Knoxball
         {
             yield return new WaitForSeconds(2f);
             ResetGameObject(ball, new Vector3(0, 0, 0));
-            LocalPlayer.ResetLocation();
+            localPlayer.ResetLocation();
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
-            m_InGameState = InGameState.Playing;
+            SetInGameState(InGameState.Playing);
         }
 
         void ResetGameObject(GameObject gameObject, Vector3 position)
@@ -197,7 +223,7 @@ namespace Knoxball
 
         public void Celebrate()
         {
-            m_InGameState = InGameState.GoalCelebrating;
+            SetInGameState(InGameState.GoalCelebrating);
             score.text = CurrentScore();
             print(CurrentScore());
             celebration.GetComponent<CelebrationComponent>().Celebrate();
@@ -260,8 +286,8 @@ namespace Knoxball
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
-                VerifyConnectionConfirm_ServerRpc(clientId);
                 Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                VerifyConnectionConfirm_ServerRpc(clientId);
             }
         }
 
@@ -274,8 +300,8 @@ namespace Knoxball
             //m_dataStore.AddPlayer(clientData.id, clientData.name);
             bool areAllPlayersConnected = NetworkManager.ConnectedClients.Count >= m_expectedPlayerCount; // The game will begin at this point, or else there's a timeout for booting any unconnected players.
 
+            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "areAllPlayersConnected: " + areAllPlayersConnected);
             VerifyConnectionConfirm_ClientRpc(clientId, areAllPlayersConnected);
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
         }
 
         [ClientRpc]
@@ -286,17 +312,39 @@ namespace Knoxball
             {
                 m_onConnectionVerified?.Invoke();
 
-                if (canBeginGame)
-                {
-                    BeginGame();
-                }
+            }
+
+            if (canBeginGame)
+            {
+                BeginGame();
             }
         }
 
         private void BeginGame()
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
-            m_InGameState = InGameState.Playing;
+            SetInGameState(InGameState.Playing);
+        }
+
+        private void SetInGameState(InGameState inGameState)
+        {
+            if (IsHost)
+            {
+                SetInGameState_ServerRpc(inGameState);
+                SetTimeRemaining_ServerRpc(timeRemaining);
+            }
+        }
+
+        [ServerRpc]
+        private void SetInGameState_ServerRpc(InGameState inGameState)
+        {
+            m_InGameState.Value = inGameState;
+        }
+
+        [ServerRpc]
+        private void SetTimeRemaining_ServerRpc(float timeRemaining)
+        {
+            m_timeRemaining.Value = timeRemaining;
         }
     }
 }

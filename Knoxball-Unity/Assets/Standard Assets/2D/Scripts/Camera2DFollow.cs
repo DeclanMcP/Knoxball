@@ -30,6 +30,10 @@ namespace UnityStandardAssets._2D
         private void Update()
         {
             // only update lookahead pos if accelerating or changed direction
+            if (target == null)
+            {
+                return;
+            }
             var targetedPosition = target.position;
             if (target2 != null)
             {

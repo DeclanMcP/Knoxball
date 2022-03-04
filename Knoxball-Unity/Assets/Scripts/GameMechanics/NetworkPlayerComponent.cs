@@ -46,7 +46,7 @@ namespace Knoxball
         {
             if (IsOwner)
             {
-                Game.instance.LocalPlayer = this;
+                Game.instance.localPlayer = this;
                 var followCamera = Game.instance.mainCamera.GetComponent<Camera2DFollow>();
                 followCamera.target2 = transform;
 
