@@ -8,11 +8,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
-    <ProjectGuid>{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}</ProjectGuid>
+    <RootNamespace>Unity.Netcode.Samples</RootNamespace>
+    <ProjectGuid>{70B13B62-9FEA-B003-A2AB-8796562A3755}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <AssemblyName>ClientNetworkTransform</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>.</BaseDirectory>
@@ -26,7 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,7 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <NoConfig>true</NoConfig>
@@ -56,114 +56,10 @@
     <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/Scripts/Lobby Room/LocalGameState.cs" />
-    <Compile Include="Assets/Scripts/UI/CreateMenuUI.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/Observed.cs" />
-    <Compile Include="Assets/Scripts/UI/InLobbyUserUI.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/LogHandler.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FixedJoystick.cs" />
-    <Compile Include="Assets/Scripts/Auth/Identity.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/VariableJoystick.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/StadiumComponent.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/Countdown.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/Messenger.cs" />
-    <Compile Include="Assets/Scripts/Lobby/AsyncRequestLobby.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LocalGameStateObserver.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/GoalComponent.cs" />
-    <Compile Include="Assets/Scripts/Lobby/LobbyContentHeartbeat.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/Game.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/UpdateSlow.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/ObserverBehaviour.cs" />
-    <Compile Include="Assets/Scripts/NGO/IInGameInputHandler.cs" />
-    <Compile Include="Assets/Scripts/UI/LobbyUserVolumeUI.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LocalLobby.cs" />
-    <Compile Include="Assets/Scripts/UI/CountdownUI.cs" />
-    <Compile Include="Assets/Scripts/UI/DisplayCodeUI.cs" />
-    <Compile Include="Assets/Scripts/Relay/AsyncRequestRelay.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/Locator.cs" />
-    <Compile Include="Assets/Scripts/UI/BackButtonUI.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/CelebrationComponent.cs" />
-    <Compile Include="Assets/Scripts/Relay/RelayUtpSetup.cs" />
-    <Compile Include="Assets/Scripts/UI/MainMenuUI.cs" />
-    <Compile Include="Assets/Scripts/UI/RelayAddressUI.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/GameManager.cs" />
-    <Compile Include="Assets/Scripts/UI/ExitButtonUI.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/GameNetworkManager.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/BallComponent.cs" />
-    <Compile Include="Assets/Scripts/UI/LobbyNameUI.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/DynamicJoystick.cs" />
-    <Compile Include="Assets/Scripts/UI/ReadyCheckUI.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Base/Joystick.cs" />
-    <Compile Include="Assets/Scripts/UI/UserNameUI.cs" />
-    <Compile Include="Assets/Scripts/UI/ShowWhenLobbyStateUI.cs" />
-    <Compile Include="Assets/Scripts/UI/UITinter.cs" />
-    <Compile Include="Assets/Scripts/Lobby/ToLocalLobby.cs" />
-    <Compile Include="Assets/Scripts/Lobby/LobbyAPIInterface.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LocalLobbyObserver.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LobbyUserAudio.cs" />
-    <Compile Include="Assets/KickButton.cs" />
-    <Compile Include="Assets/Scripts/UI/GameStateVisibilityUI.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LobbyUser.cs" />
-    <Compile Include="Assets/Scripts/Auth/NameGenerator.cs" />
-    <Compile Include="Assets/Scripts/Auth/SubIdentity_Authentication.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/WinnerAnnouncement.cs" />
-    <Compile Include="Assets/Scripts/UI/StartLobbyButtonUI.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/NetworkPlayerComponent.cs" />
-    <Compile Include="Assets/Scripts/UI/EndGameButtonUI.cs" />
-    <Compile Include="Assets/Scripts/UI/ObserverPanel.cs" />
-    <Compile Include="Assets/Scripts/UI/InLobbyUserList.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/MenuManager.cs" />
-    <Compile Include="Assets/Scripts/Relay/RelayPendingApproval.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/AsyncRequest.cs" />
-    <Compile Include="Assets/Scripts/UI/LobbyButtonUI.cs" />
-    <Compile Include="Assets/Scripts/NGO/RelayNGOUtpSetup.cs" />
-    <Compile Include="Assets/Scripts/UI/RecolorForLobbyType.cs" />
-    <Compile Include="Assets/Scripts/Relay/RelayUtpHost.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LobbyServiceData.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/GameMenuManager.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LobbyUserObserver.cs" />
-    <Compile Include="Assets/Joystick Pack/Scripts/Joysticks/FloatingJoystick.cs" />
-    <Compile Include="Assets/Scripts/GameMechanics/PlayerComponent.cs" />
-    <Compile Include="Assets/Scripts/UI/JoinCreateLobbyUI.cs" />
-    <Compile Include="Assets/Scripts/UI/NameChangeUI.cs" />
-    <Compile Include="Assets/Scripts/NGO/SetupInGame.cs" />
-    <Compile Include="Assets/Scripts/Lobby/LobbyAsyncRequests.cs" />
-    <Compile Include="Assets/Scripts/UI/SpinnerUI.cs" />
-    <Compile Include="Assets/Scripts/UI/UIPanelBase.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/LobbyServiceDataObserver.cs" />
-    <Compile Include="Assets/Scripts/UI/JoinMenuUI.cs" />
-    <Compile Include="Assets/Scripts/Relay/RelayAPIInterface.cs" />
-    <Compile Include="Assets/Scripts/UI/EmoteButtonUI.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/EmoteType.cs" />
-    <Compile Include="Assets/Scripts/Lobby Room/ServerAddress.cs" />
-    <Compile Include="Assets/Scripts/UI/RateLimitVisibility.cs" />
-    <Compile Include="Assets/Scripts/UI/UserStateVisibilityUI.cs" />
-    <Compile Include="Assets/Scripts/UI/PopUpUI.cs" />
-    <Compile Include="Assets/Scripts/Relay/RelayUtpClient.cs" />
-    <Compile Include="Assets/Scripts/Infrastructure/LogHandlerSettings.cs" />
+    <Compile Include="Assets/Samples/Netcode for GameObjects/1.0.0-pre.3/ClientNetworkTransform/Scripts/ClientNetworkTransform.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMPro_Mobile.cginc" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF SSD.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" />
-    <None Include="Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader" />
-    <None Include="Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
-    <None Include="Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF Overlay.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader" />
-    <None Include="Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader" />
-    <None Include="Assets/TextMesh Pro/Shaders/TMP_Sprite.shader" />
+    <None Include="Assets/Samples/Netcode for GameObjects/1.0.0-pre.3/ClientNetworkTransform/Scripts/ClientNetworkTransform.asmdef" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -388,8 +284,29 @@
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/Unity.app/Contents/Managed/UnityEngine/UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.Graphs">
+      <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/Unity.app/Contents/Managed/UnityEditor.Graphs.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.WebGL.Extensions">
+      <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.OSXStandalone.Extensions">
+      <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Android.Extensions">
+      <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions">
+      <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Collections.LowLevel.ILSupport">
       <HintPath>Library/PackageCache/com.unity.collections@1.1.0/Unity.Collections.LowLevel.ILSupport/Unity.Collections.LowLevel.ILSupport.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Plastic.Newtonsoft.Json">
+      <HintPath>Library/PackageCache/com.unity.collab-proxy@1.11.2/Lib/Editor/PlasticSCM/Unity.Plastic.Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Plastic.Antlr3.Runtime">
+      <HintPath>Library/PackageCache/com.unity.collab-proxy@1.11.2/Lib/Editor/PlasticSCM/Unity.Plastic.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Burst.Unsafe">
       <HintPath>Library/PackageCache/com.unity.burst@1.5.6/Unity.Burst.Unsafe.dll</HintPath>
@@ -403,6 +320,9 @@
     <Reference Include="Unity.Burst.Cecil">
       <HintPath>Library/PackageCache/com.unity.burst@1.5.6/Unity.Burst.CodeGen/Unity.Burst.Cecil.dll</HintPath>
     </Reference>
+    <Reference Include="log4netPlastic">
+      <HintPath>Library/PackageCache/com.unity.collab-proxy@1.11.2/Lib/Editor/PlasticSCM/log4netPlastic.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Burst.Cecil.Rocks">
       <HintPath>Library/PackageCache/com.unity.burst@1.5.6/Unity.Burst.CodeGen/Unity.Burst.Cecil.Rocks.dll</HintPath>
     </Reference>
@@ -411,6 +331,9 @@
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Library/PackageCache/com.unity.nuget.mono-cecil@1.10.1/Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="unityplastic">
+      <HintPath>Library/PackageCache/com.unity.collab-proxy@1.11.2/Lib/Editor/PlasticSCM/unityplastic.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
@@ -763,151 +686,20 @@
     <Reference Include="mscorlib">
       <HintPath>/Applications/Unity/Hub/Editor/2021.1.24f1/Unity.app/Contents/NetStandard/compat/2.0.0/shims/netfx/mscorlib.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.InternalAPIEngineBridge.001">
-      <HintPath>Library/ScriptAssemblies/Unity.InternalAPIEngineBridge.001.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VSCode.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.PixelPerfect">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.PixelPerfect.dll</HintPath>
-    </Reference>
-    <Reference Include="PsdPlugin">
-      <HintPath>Library/ScriptAssemblies/PsdPlugin.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.IK.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.IK.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Path.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Path.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Netcode.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Netcode.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Networking.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Networking.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Rider.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Relay">
-      <HintPath>Library/ScriptAssemblies/Unity.Services.Relay.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Networking.Transport">
-      <HintPath>Library/ScriptAssemblies/Unity.Networking.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Authentication">
-      <HintPath>Library/ScriptAssemblies/Unity.Services.Authentication.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.IK.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.IK.Runtime.dll</HintPath>
+    <Reference Include="Unity.Netcode.Runtime">
+      <HintPath>Library/ScriptAssemblies/Unity.Netcode.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Netcode.Components">
       <HintPath>Library/ScriptAssemblies/Unity.Netcode.Components.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.2D.Animation.Triangle.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Animation.Triangle.Runtime.dll</HintPath>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Mathematics.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Mathematics.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Collections">
-      <HintPath>Library/ScriptAssemblies/Unity.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Netcode.Adapter.UTP">
-      <HintPath>Library/ScriptAssemblies/Unity.Netcode.Adapter.UTP.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Common.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Common.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Lobbies">
-      <HintPath>Library/ScriptAssemblies/Unity.Services.Lobbies.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Animation.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Animation.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Tilemap.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Tilemap.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.VisualStudio.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.VisualStudio.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline">
-      <HintPath>Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Burst.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Psdimporter.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Psdimporter.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.InternalAPIEditorBridge.001">
-      <HintPath>Library/ScriptAssemblies/Unity.InternalAPIEditorBridge.001.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.PlasticSCM.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Netcode.Adapter.UTP.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Netcode.Adapter.UTP.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Netcode.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.Netcode.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Core">
-      <HintPath>Library/ScriptAssemblies/Unity.Services.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Mathematics">
-      <HintPath>Library/ScriptAssemblies/Unity.Mathematics.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Burst">
-      <HintPath>Library/ScriptAssemblies/Unity.Burst.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Services.Core.Environments">
-      <HintPath>Library/ScriptAssemblies/Unity.Services.Core.Environments.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Animation.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Animation.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.PixelPerfect.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.PixelPerfect.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Timeline.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Common.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.Common.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.SpriteShape.Editor">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.SpriteShape.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.SpriteShape.Runtime">
-      <HintPath>Library/ScriptAssemblies/Unity.2D.SpriteShape.Runtime.dll</HintPath>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}</Project>
-      <Name>Assembly-CSharp-firstpass</Name>
-    </ProjectReference>
-    <ProjectReference Include="ClientNetworkTransform.csproj">
-      <Project>{70B13B62-9FEA-B003-A2AB-8796562A3755}</Project>
-      <Name>ClientNetworkTransform</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
