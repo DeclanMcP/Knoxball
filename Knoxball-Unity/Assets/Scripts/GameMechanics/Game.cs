@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
 using System;
+using System.Collections.Generic;
 
 public delegate void KickCallBack(bool isPressed);
 
@@ -23,6 +24,57 @@ namespace Knoxball
         Unknown,
         Home,
         Away
+    }
+
+    internal class GamePlayState
+    {
+        internal int tick;
+        internal List<GamePlayerState> playerStates = new List<GamePlayerState>();
+        internal BallState ballState;
+
+        public GamePlayState()
+        {
+        }
+
+        public GamePlayState(int tick, List<GamePlayerState> playerStates, BallState ballState)
+        {
+            this.tick = tick;
+            this.playerStates = playerStates;
+            this.ballState = ballState;
+        }
+    }
+
+    internal class GamePlayerState
+    {
+        ulong ID;
+        Vector3 position;
+        Vector3 velocity;
+        Quaternion rotation;
+        bool kicking;
+
+        public GamePlayerState(ulong iD, Vector3 position, Vector3 velocity, Quaternion rotation, bool kicking)
+        {
+            ID = iD;
+            this.position = position;
+            this.velocity = velocity;
+            this.rotation = rotation;
+            this.kicking = kicking;
+        }
+    }
+
+    internal class BallState
+    {
+        Vector3 position;
+        Vector3 velocity;
+        Vector3 rotation;
+        private Quaternion rotation1;
+
+        public BallState(Vector3 position, Vector3 velocity, Quaternion rotation1)
+        {
+            this.position = position;
+            this.velocity = velocity;
+            this.rotation1 = rotation1;
+        }
     }
 
     public class Game : NetworkBehaviour, IReceiveMessages
@@ -54,7 +106,12 @@ namespace Knoxball
         public TMP_Text score;
 
         float timeRemaining = 180;
+        float elapsedTime = 0;
+        int tick = 0;
         private InGameState inGameState;
+        private static int gameplayStateBufferSize = 1024;
+        private GamePlayState[] gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
+        private GamePlayState latestGameplayState = new GamePlayState(); //Only used by client
 
         private LobbyUser m_LocalUser;
         private Action m_onConnectionVerified, m_onGameEnd;
@@ -132,6 +189,34 @@ namespace Knoxball
             {
                 timeRemaining -= Time.deltaTime;
                 timeRemaining = Mathf.Max(timeRemaining, 0);
+                this.elapsedTime += Time.deltaTime;
+                Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
+                while (this.elapsedTime >= Time.fixedDeltaTime)
+                {
+                    this.elapsedTime -= Time.fixedDeltaTime;
+                    Physics.Simulate(Time.fixedDeltaTime);
+                    tick++;
+                    //snapshot this tick state
+
+                    if (IsHost)
+                    {
+                        var gamePlayerStates = new List<GamePlayerState>();
+                        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+                        {
+                            var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                            var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                            gamePlayerStates.Add(clientNeworkPlayerObject.getCurrentPlayerState(clientId));
+
+                        }
+                        var ballState = ball.GetComponent<BallComponent>().getCurrentState();
+                        var gameplayState = new GamePlayState(tick, gamePlayerStates, ballState);
+                        gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
+
+                    }
+
+                    //Send inputs for tick
+                    localPlayer.RecordPlayerInputForTick(tick);
+                }
                 DisplayTime(timeRemaining);
             }
             if (timeRemaining <= 0 && IsHost)
@@ -195,6 +280,18 @@ namespace Knoxball
             }
             Celebrate();
             StartCoroutine(ResetGame());
+        }
+
+        [ClientRpc]
+        private void SetLatestGameplayState_ClientRpc(GamePlayState gameplayState)
+        {
+            if (latestGameplayState.tick < gameplayState.tick)
+            {
+                this.latestGameplayState = gameplayState;
+                //Take tick from latestGameplay, from that tick with that
+                //gameplay state, replay physics which user inputs included in each step
+                //(this only applies to clients)
+            }
         }
 
 
@@ -261,6 +358,11 @@ namespace Knoxball
         public LobbyUser LocalUser()
         {
             return m_LocalUser;
+        }
+
+        public void ReplayFromTick(int tick)
+        {
+
         }
 
         void DisplayTime(float timeToDisplay)

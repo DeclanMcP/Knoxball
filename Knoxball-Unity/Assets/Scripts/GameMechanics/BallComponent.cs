@@ -78,5 +78,10 @@ namespace Knoxball
                 }
             }
         }
+
+        internal BallState getCurrentState()
+        {
+            return new BallState(transform.position, GetComponent<Rigidbody>().velocity, transform.rotation);
+        }
     }
 }

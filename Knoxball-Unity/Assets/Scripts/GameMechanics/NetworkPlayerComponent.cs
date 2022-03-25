@@ -3,7 +3,6 @@ using Unity.Netcode;
 using UnityEngine;
 using TMPro;
 using UnityStandardAssets._2D;
-using Unity.Netcode.Components;
 
 namespace Knoxball
 {
@@ -36,10 +35,27 @@ namespace Knoxball
             left = KeyCode.LeftArrow
         };
 
+        internal class PlayerInputState
+        {
+            internal readonly int tick;
+            Vector3 direction;
+            bool kicking;
+
+
+            internal PlayerInputState(int tick, Vector3 direction, bool kicking)
+            {
+                this.tick = tick;
+                this.direction = direction;
+                this.kicking = kicking;
+            }
+        }
+
         //private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
         //private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
         private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
         private NetworkVariable<NetworkString> m_name = new NetworkVariable<NetworkString>(NetworkVariableReadPermission.Everyone, "");
+        private static int playerInputBufferSize = 1024;
+        private PlayerInputState[] m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
 
         // Start is called before the first frame update
 
@@ -91,15 +107,15 @@ namespace Knoxball
             if (IsOwner)
             {
                 UpdatePlayerInput();
-                //UpdatePlayerPosition();
-                //UpdatePlayerVelocity();
+                UpdatePlayerPosition();
+                UpdatePlayerVelocity();
                 UpdatePlayerName();
             }
             else
             {
                 //transform.position = m_position.Value;
-                //var playerComponent = gameObject.GetComponent<PlayerComponent>();
-                //playerComponent.OnKickStateChange(m_kicking.Value);
+                var playerComponent = gameObject.GetComponent<PlayerComponent>();
+                playerComponent.OnKickStateChange(m_kicking.Value);
                 //GetComponent<Rigidbody>().velocity = m_velocity.Value;
                 displayName.text = m_name.Value;
             }
@@ -108,15 +124,8 @@ namespace Knoxball
         void UpdatePlayerInput()
         {
             var force = GenerateKeypadForce() + GenerateJoystickForce();
-            ApplyForce_ServerRpc(force);
+            gameObject.GetComponent<Rigidbody>().AddForce(force, ForceMode.VelocityChange);
             HandleKickEvent();
-        }
-
-        [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
-        private void ApplyForce_ServerRpc(Vector3 force)
-        {
-            gameObject.GetComponent<Rigidbody>().AddForce(force, ForceMode.VelocityChange); ;
-            //m_position.Value = position;
         }
 
         Vector3 GenerateKeypadForce()
@@ -139,24 +148,60 @@ namespace Knoxball
             return direction * m_ForceStrength * Time.fixedDeltaTime;
         }
 
-        //void UpdatePlayerPosition()
-        //{
-        //    //Vector3 targetPosition = transform.position;
-        //    //SetPosition_ServerRpc(targetPosition); // Client can't set a network variable value.
+        public void RecordPlayerInputForTick(int tick)
+        {
+            if (!IsOwner) { return; }
+            var playerInput = new PlayerInputState(tick, GenerateKeypadForce() + GenerateJoystickForce(), IsKicking());
 
+            if (IsHost) {
+                storePlayerInputState(playerInput);
+                return;
+            }
+            SendInput_ServerRpc(playerInput);
+        }
+
+        private bool IsKicking()
+        {
+            return m_kickButtonState || Input.GetKey(kick);
+        }
+
+        [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
+        private void SendInput_ServerRpc(PlayerInputState inputState)
+        {
+            storePlayerInputState(inputState);
+        }
+
+        private void storePlayerInputState(PlayerInputState inputState)
+        {
+            m_playerInputBuffer[inputState.tick % playerInputBufferSize] = inputState;
+
+            //Now the server receives a given player input, it can update the simulation for a given tick. Each player can store a
+            //list of tick states so that when we rerun the simulation on the server side, it can run through these new values.
+        }
+
+        internal GamePlayerState getCurrentPlayerState(ulong iD)
+        {
+            return new GamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
+        }
+
+        void UpdatePlayerPosition()
+        {
+            //Vector3 targetPosition = transform.position;
+            //SetPosition_ServerRpc(targetPosition); // Client can't set a network variable value.
+
+        }
+
+        //[ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
+        //private void SetPosition_ServerRpc(Vector3 position)
+        //{
+        //    m_position.Value = position;
         //}
 
-        ////[ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
-        ////private void SetPosition_ServerRpc(Vector3 position)
-        ////{
-        ////    m_position.Value = position;
-        ////}
-
-        //void UpdatePlayerVelocity()
-        //{
-        //    //Vector3 targetVelocity = GetComponent<Rigidbody>().velocity;
-        //    //SetVelocity_ServerRpc(targetVelocity);
-        //}
+        void UpdatePlayerVelocity()
+        {
+            //Vector3 targetVelocity = GetComponent<Rigidbody>().velocity;
+            //SetVelocity_ServerRpc(targetVelocity);
+        }
 
         //[ServerRpc]
         //private void SetVelocity_ServerRpc(Vector3 velocity)
@@ -214,11 +259,16 @@ namespace Knoxball
             }
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
+        //private void OnCollisionEnter(Collision collision)
+        //{
 
-            Debug.Log("OnCollisionEnter!" + collision);
-        }
+        //    //Debug.Log("OnCollisionEnter!");
+        //    //if (collision.gameObject.GetComponent<PlayerComponent>() == null && collision.gameObject.GetComponent<BallComponent>() == null)
+        //    //{
+        //    //    return;
+        //    //}
+        //    //collision.rigidbody.AddForce(collision.relativeVelocity);
+        //}
     }
 
     public struct NetworkString : INetworkSerializable
