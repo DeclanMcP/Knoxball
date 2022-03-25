@@ -35,11 +35,11 @@ namespace Knoxball
             left = KeyCode.LeftArrow
         };
 
-        internal class PlayerInputState
+        internal class PlayerInputState: INetworkSerializable
         {
-            internal readonly int tick;
-            Vector3 direction;
-            bool kicking;
+            internal int tick;
+            internal Vector3 direction;
+            internal bool kicking;
 
 
             internal PlayerInputState(int tick, Vector3 direction, bool kicking)
@@ -48,14 +48,27 @@ namespace Knoxball
                 this.direction = direction;
                 this.kicking = kicking;
             }
+
+
+            // INetworkSerializable
+            public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+            {
+                serializer.SerializeValue(ref tick);
+                serializer.SerializeValue(ref direction);
+                serializer.SerializeValue(ref kicking);
+            }
+            // ~INetworkSerializable
         }
 
         //private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
         //private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
-        private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
+        //private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
         private NetworkVariable<NetworkString> m_name = new NetworkVariable<NetworkString>(NetworkVariableReadPermission.Everyone, "");
         private static int playerInputBufferSize = 1024;
         private PlayerInputState[] m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
+
+        private bool m_kickState = false;
+        private Vector3 m_directionState;
 
         // Start is called before the first frame update
 
@@ -94,7 +107,8 @@ namespace Knoxball
         {
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             var previousKicking = playerComponent.IsKicking();
-            playerComponent.OnKickStateChange(m_kickButtonState || Input.GetKey(kick));
+            m_kickState = m_kickButtonState || Input.GetKey(kick);
+            playerComponent.OnKickStateChange(m_kickState);
             if (previousKicking != playerComponent.IsKicking())
             {
                 UpdatePlayerKickState();
@@ -115,7 +129,7 @@ namespace Knoxball
             {
                 //transform.position = m_position.Value;
                 var playerComponent = gameObject.GetComponent<PlayerComponent>();
-                playerComponent.OnKickStateChange(m_kicking.Value);
+                //playerComponent.OnKickStateChange(m_kicking.Value);
                 //GetComponent<Rigidbody>().velocity = m_velocity.Value;
                 displayName.text = m_name.Value;
             }
@@ -123,8 +137,8 @@ namespace Knoxball
 
         void UpdatePlayerInput()
         {
-            var force = GenerateKeypadForce() + GenerateJoystickForce();
-            gameObject.GetComponent<Rigidbody>().AddForce(force, ForceMode.VelocityChange);
+            m_directionState = GenerateKeypadForce() + GenerateJoystickForce();
+            gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
             HandleKickEvent();
         }
 
@@ -151,7 +165,7 @@ namespace Knoxball
         public void RecordPlayerInputForTick(int tick)
         {
             if (!IsOwner) { return; }
-            var playerInput = new PlayerInputState(tick, GenerateKeypadForce() + GenerateJoystickForce(), IsKicking());
+            var playerInput = new PlayerInputState(tick, m_directionState, IsKicking());
 
             if (IsHost) {
                 storePlayerInputState(playerInput);
@@ -162,13 +176,15 @@ namespace Knoxball
 
         private bool IsKicking()
         {
-            return m_kickButtonState || Input.GetKey(kick);
+            return m_kickState;
         }
 
         [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
         private void SendInput_ServerRpc(PlayerInputState inputState)
         {
             storePlayerInputState(inputState);
+            //Server player received a clients input, replay the physics from tick provided.
+            Game.instance.ReplayGameFromTick(inputState.tick);
         }
 
         private void storePlayerInputState(PlayerInputState inputState)
@@ -182,6 +198,26 @@ namespace Knoxball
         internal GamePlayerState getCurrentPlayerState(ulong iD)
         {
             return new GamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
+        }
+
+        public void SetPlayerState(GamePlayerState playerState)
+        {
+            Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
+            transform.position = playerState.position;
+            GetComponent<Rigidbody>().velocity = playerState.velocity;
+            transform.rotation = playerState.rotation;
+            //missing kick
+        }
+
+        public void SetInputsForTick(int tick)
+        {
+            if (m_playerInputBuffer[tick] == null) {
+                Debug.Log("No inputs found for this player..");
+                return;
+            }
+            PlayerInputState playerInputState = m_playerInputBuffer[tick];
+            m_kickState = playerInputState.kicking;
+            m_directionState = playerInputState.direction;
         }
 
         void UpdatePlayerPosition()
@@ -218,7 +254,7 @@ namespace Knoxball
         [ServerRpc]
         private void SetKicking_ServerRpc(bool kicking)
         {
-            m_kicking.Value = kicking;
+            //m_kicking.Value = kicking;
         }
 
         void UpdatePlayerName()

@@ -83,5 +83,12 @@ namespace Knoxball
         {
             return new BallState(transform.position, GetComponent<Rigidbody>().velocity, transform.rotation);
         }
+
+        public void SetState(BallState ballState)
+        {
+            transform.position = ballState.position;
+            GetComponent<Rigidbody>().velocity = ballState.velocity;
+            transform.rotation = ballState.rotation;
+        }
     }
 }

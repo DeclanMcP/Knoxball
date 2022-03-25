@@ -26,31 +26,60 @@ namespace Knoxball
         Away
     }
 
-    internal class GamePlayState
+    internal class GamePlayState: INetworkSerializable
     {
         internal int tick;
-        internal List<GamePlayerState> playerStates = new List<GamePlayerState>();
-        internal BallState ballState;
+        internal BallState ballState = new BallState();
+        internal GamePlayerState[] playerStates;
 
         public GamePlayState()
         {
+            this.ballState = new BallState();
         }
 
-        public GamePlayState(int tick, List<GamePlayerState> playerStates, BallState ballState)
+        public GamePlayState(int tick, GamePlayerState[] playerStates, BallState ballState)
         {
             this.tick = tick;
-            this.playerStates = playerStates;
             this.ballState = ballState;
+            this.playerStates = playerStates;
         }
+
+        // INetworkSerializable
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref tick);
+            serializer.SerializeValue(ref ballState);
+            //serializer.SerializeValue(ref playerStates);
+            // Length
+            int length = 0;
+            if (!serializer.IsReader)
+            {
+                length = playerStates.Length;
+            }
+
+            serializer.SerializeValue(ref length);
+
+            // Array
+            if (serializer.IsReader)
+            {
+                playerStates = new GamePlayerState[length];
+            }
+
+            for (int n = 0; n < length; ++n)
+            {
+                serializer.SerializeValue(ref playerStates[n]);
+            }
+        }
+        // ~INetworkSerializable
     }
 
-    internal class GamePlayerState
+    public struct GamePlayerState: INetworkSerializable
     {
-        ulong ID;
-        Vector3 position;
-        Vector3 velocity;
-        Quaternion rotation;
-        bool kicking;
+        internal ulong ID;
+        internal Vector3 position;
+        internal Vector3 velocity;
+        internal Quaternion rotation;
+        internal bool kicking;
 
         public GamePlayerState(ulong iD, Vector3 position, Vector3 velocity, Quaternion rotation, bool kicking)
         {
@@ -60,21 +89,44 @@ namespace Knoxball
             this.rotation = rotation;
             this.kicking = kicking;
         }
+
+        // INetworkSerializable
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref ID);
+            serializer.SerializeValue(ref position);
+            serializer.SerializeValue(ref velocity);
+            serializer.SerializeValue(ref rotation);
+            serializer.SerializeValue(ref kicking);
+        }
+        // ~INetworkSerializable
     }
 
-    internal class BallState
+    public struct BallState: INetworkSerializable
     {
-        Vector3 position;
-        Vector3 velocity;
-        Vector3 rotation;
-        private Quaternion rotation1;
+        internal Vector3 position;
+        internal Vector3 velocity;
+        internal Quaternion rotation;
 
-        public BallState(Vector3 position, Vector3 velocity, Quaternion rotation1)
+        //public BallState()
+        //{
+        //}
+
+        public BallState(Vector3 position, Vector3 velocity, Quaternion rotation)
         {
             this.position = position;
             this.velocity = velocity;
-            this.rotation1 = rotation1;
+            this.rotation = rotation;
         }
+
+        // INetworkSerializable
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref position);
+            serializer.SerializeValue(ref velocity);
+            serializer.SerializeValue(ref rotation);
+        }
+        // ~INetworkSerializable
     }
 
     public class Game : NetworkBehaviour, IReceiveMessages
@@ -200,18 +252,10 @@ namespace Knoxball
 
                     if (IsHost)
                     {
-                        var gamePlayerStates = new List<GamePlayerState>();
-                        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-                        {
-                            var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                            var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                            gamePlayerStates.Add(clientNeworkPlayerObject.getCurrentPlayerState(clientId));
 
-                        }
-                        var ballState = ball.GetComponent<BallComponent>().getCurrentState();
-                        var gameplayState = new GamePlayState(tick, gamePlayerStates, ballState);
+                        var gameplayState = GetGamePlayStateForTick(tick);
                         gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
-
+                        SetLatestGameplayState_ClientRpc(gameplayState);
                     }
 
                     //Send inputs for tick
@@ -228,6 +272,22 @@ namespace Knoxball
                 AnounceWinner();
                 StartCoroutine(EndGame());
             }
+        }
+
+        private GamePlayState GetGamePlayStateForTick(int stateTick)
+        {
+            var gamePlayerStates = new GamePlayerState[NetworkManager.Singleton.ConnectedClientsIds.Count];
+            int i = 0;
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                gamePlayerStates[i] = clientNeworkPlayerObject.getCurrentPlayerState(clientId);
+                i++;
+
+            }
+            var ballState = ball.GetComponent<BallComponent>().getCurrentState();
+            return new GamePlayState(stateTick, gamePlayerStates, ballState);
         }
 
         void AnounceWinner()
@@ -291,6 +351,53 @@ namespace Knoxball
                 //Take tick from latestGameplay, from that tick with that
                 //gameplay state, replay physics which user inputs included in each step
                 //(this only applies to clients)
+                var replayTick = this.latestGameplayState.tick;
+                SetGamePlayStateToState(gameplayState);
+                while (replayTick <= tick)
+                {
+                    //Apply inputs of this tick from locally stored states
+                    localPlayer.SetInputsForTick(replayTick);
+                    Physics.Simulate(Time.fixedDeltaTime);
+                    replayTick++;
+                }
+            }
+        }
+
+        private void SetGamePlayStateToState(GamePlayState gamePlayState)
+        {
+            foreach (GamePlayerState gamePlayerState in gamePlayState.playerStates)
+            {
+                var playerObject = NetworkManager.Singleton.ConnectedClients[gamePlayerState.ID].PlayerObject;
+                playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
+            }
+            ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
+        }
+
+        //Only handled by the server
+        public void ReplayGameFromTick(int replayTick)
+        {
+            if (replayTick > tick)
+            {
+                Debug.Log("Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
+            }
+            //We need to reset state to state of this tick
+            SetGamePlayStateToState(gameplayStateBuffer[replayTick]);
+
+            while (replayTick <= tick)
+            {
+                //Apply inputs of this tick from locally stored states
+                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+                {
+                    var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                    clientNeworkPlayerObject.SetInputsForTick(replayTick);
+
+                }
+                Physics.Simulate(Time.fixedDeltaTime);
+                //Now we have resimulated this state, we need to save it again.
+                gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateForTick(replayTick);
+
+                replayTick++;
             }
         }
 
