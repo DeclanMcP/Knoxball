@@ -242,7 +242,7 @@ namespace Knoxball
                 timeRemaining -= Time.deltaTime;
                 timeRemaining = Mathf.Max(timeRemaining, 0);
                 this.elapsedTime += Time.deltaTime;
-                Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
+                //Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
                 while (this.elapsedTime >= Time.fixedDeltaTime)
                 {
                     this.elapsedTime -= Time.fixedDeltaTime;
@@ -259,6 +259,7 @@ namespace Knoxball
                     }
 
                     //Send inputs for tick
+                    Debug.Log("RecordPlayerInputForTick: " + localPlayer);
                     localPlayer.RecordPlayerInputForTick(tick);
                 }
                 DisplayTime(timeRemaining);
@@ -381,7 +382,12 @@ namespace Knoxball
                 Debug.Log("Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
             }
             //We need to reset state to state of this tick
-            SetGamePlayStateToState(gameplayStateBuffer[replayTick]);
+            if (gameplayStateBuffer.Length <= (replayTick % gameplayStateBufferSize))
+            {
+                Debug.Log("gameplayStateBuffer.Length: %d" + gameplayStateBuffer.Length + "replayTick % gameplayStateBufferSize" + replayTick % gameplayStateBufferSize);
+                return;
+            }
+            SetGamePlayStateToState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
 
             while (replayTick <= tick)
             {
@@ -390,6 +396,7 @@ namespace Knoxball
                 {
                     var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
                     var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                    Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                     clientNeworkPlayerObject.SetInputsForTick(replayTick);
 
                 }

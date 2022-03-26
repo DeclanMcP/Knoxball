@@ -29,24 +29,24 @@ namespace Knoxball
             }
             else
             {
-                transform.position = m_position.Value;
-                Debug.Log("Velocity value: " + m_velocity.Value);
-                GetComponent<Rigidbody>().velocity = m_velocity.Value;
+                //transform.position = m_position.Value;
+                //Debug.Log("Velocity value: " + m_velocity.Value);
+                //GetComponent<Rigidbody>().velocity = m_velocity.Value;
             }
 
         }
 
         void UpdatePosition()
         {
-            Vector3 targetPosition = transform.position;
-            SetPosition_ServerRpc(targetPosition); // Client can't set a network variable value.
+            //Vector3 targetPosition = transform.position;
+            //SetPosition_ServerRpc(targetPosition); // Client can't set a network variable value.
 
         }
 
         [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
         private void SetPosition_ServerRpc(Vector3 position)
         {
-            m_position.Value = position;
+            //m_position.Value = position;
         }
 
         void UpdateVelocity()
@@ -62,7 +62,7 @@ namespace Knoxball
         [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
         private void SetVelocity_ServerRpc(Vector3 velocity)
         {
-            m_velocity.Value = velocity;
+            //m_velocity.Value = velocity;
         }
 
         public void Kick(Vector3 origin)

@@ -35,14 +35,18 @@ namespace Knoxball
             left = KeyCode.LeftArrow
         };
 
-        internal class PlayerInputState: INetworkSerializable
+        public class PlayerInputState: INetworkSerializable
         {
-            internal int tick;
-            internal Vector3 direction;
-            internal bool kicking;
+            public int tick;
+            public Vector3 direction = Vector3.zero;
+            public bool kicking;
 
+            public PlayerInputState()
+            {
 
-            internal PlayerInputState(int tick, Vector3 direction, bool kicking)
+            }
+
+            public PlayerInputState(int tick, Vector3 direction, bool kicking)
             {
                 this.tick = tick;
                 this.direction = direction;
@@ -171,7 +175,8 @@ namespace Knoxball
                 storePlayerInputState(playerInput);
                 return;
             }
-            SendInput_ServerRpc(playerInput);
+            Debug.Log("Sending input, tick: " + playerInput.tick + ", inputstate: " + playerInput);
+            SendInput_ServerRpc(playerInput);//Client side is getting called
         }
 
         private bool IsKicking()
@@ -179,9 +184,10 @@ namespace Knoxball
             return m_kickState;
         }
 
-        [ServerRpc] // Leave (RequireOwnership = true) for these so that only the player whose cursor this is can make updates.
-        private void SendInput_ServerRpc(PlayerInputState inputState)
+        [ServerRpc] // Leave (RequireOwnership = true)
+        private void SendInput_ServerRpc(PlayerInputState inputState)//Not getting called
         {
+            Debug.Log("Received input, tick: " + inputState.tick + ", inputstate: " + inputState);
             storePlayerInputState(inputState);
             //Server player received a clients input, replay the physics from tick provided.
             Game.instance.ReplayGameFromTick(inputState.tick);
@@ -202,7 +208,7 @@ namespace Knoxball
 
         public void SetPlayerState(GamePlayerState playerState)
         {
-            Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
+            //Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
             transform.position = playerState.position;
             GetComponent<Rigidbody>().velocity = playerState.velocity;
             transform.rotation = playerState.rotation;
@@ -211,11 +217,11 @@ namespace Knoxball
 
         public void SetInputsForTick(int tick)
         {
-            if (m_playerInputBuffer[tick] == null) {
+            if (m_playerInputBuffer[tick % playerInputBufferSize] == null) {
                 Debug.Log("No inputs found for this player..");
                 return;
             }
-            PlayerInputState playerInputState = m_playerInputBuffer[tick];
+            PlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
         }
@@ -254,6 +260,7 @@ namespace Knoxball
         [ServerRpc]
         private void SetKicking_ServerRpc(bool kicking)
         {
+            Debug.Log("[TestRpc] SetKicking_ServerRpc");
             //m_kicking.Value = kicking;
         }
 
@@ -268,6 +275,7 @@ namespace Knoxball
         [ServerRpc]
         private void SetName_ServerRpc(string name)
         {
+            Debug.Log("[TestRpc] SetName_ServerRpc");
             m_name.Value = name;
         }
 
@@ -278,7 +286,7 @@ namespace Knoxball
 
         public void ResetLocation()
         {
-            Debug.Log("setting kickCallback!");
+            Debug.Log("setting location!");
             Game.instance.kickCallBack = new KickCallBack(OnKick);
             if (Game.instance.LocalUser().UserTeam == UserTeam.Home)
             {
