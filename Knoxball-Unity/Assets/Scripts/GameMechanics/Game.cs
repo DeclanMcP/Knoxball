@@ -159,13 +159,15 @@ namespace Knoxball
 
         float timeRemaining = 180;
         float elapsedTime = 0;
-        int tick = 0;
+        public int tick = 0;
         private InGameState inGameState;
         private static int gameplayStateBufferSize = 1024;
         private GamePlayState[] gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
         private GamePlayState latestGameplayState = new GamePlayState(); //Only used by client
 
         private LobbyUser m_LocalUser;
+        private LocalLobby m_lobby;
+        private Dictionary<ulong, string> m_clientIdToLobbyUserId = new Dictionary<ulong, string>();
         private Action m_onConnectionVerified, m_onGameEnd;
         private int m_expectedPlayerCount;
 
@@ -189,12 +191,17 @@ namespace Knoxball
         }
 
 
-        public void Initialize(Action onConnectionVerified, int expectedPlayerCount, Action onGameEnd, LobbyUser localUser)
+        public void Initialize(Action onConnectionVerified, int expectedPlayerCount, Action onGameEnd, LobbyUser localUser, LocalLobby lobby)
         {
             m_onConnectionVerified = onConnectionVerified;
             m_expectedPlayerCount = expectedPlayerCount;
             m_onGameEnd = onGameEnd;
             m_LocalUser = localUser;
+            m_lobby = lobby;
+            foreach (KeyValuePair<string, LobbyUser> entry in m_lobby.LobbyUsers)
+            {
+                print("Lobby User: Id: " + entry.Key + ", name: " + entry.Value.DisplayName + "");
+            }
             //Locator.Get.Provide(this); // Simplifies access since some networked objects can't easily communicate locally (e.g. the host might call a ClientRpc without that client knowing where the call originated).
         }
 
@@ -202,7 +209,7 @@ namespace Knoxball
         public override void OnNetworkSpawn()
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
-            VerifyConnection_ServerRpc(NetworkManager.Singleton.LocalClientId);
+            VerifyConnection_ServerRpc(NetworkManager.Singleton.LocalClientId, m_LocalUser.ID);
         }
 
         void Update()
@@ -245,6 +252,15 @@ namespace Knoxball
                 //Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
                 while (this.elapsedTime >= Time.fixedDeltaTime)
                 {
+
+                    //Send inputs for tick
+                    Debug.Log("RecordPlayerInputForTick: " + localPlayer);
+                    localPlayer.RecordPlayerInputForTick(tick);
+                    if (IsHost)
+                    {
+                        SetPlayerInputsForTick(tick);
+                    }
+
                     this.elapsedTime -= Time.fixedDeltaTime;
                     Physics.Simulate(Time.fixedDeltaTime);
                     tick++;
@@ -252,15 +268,10 @@ namespace Knoxball
 
                     if (IsHost)
                     {
-
                         var gameplayState = GetGamePlayStateForTick(tick);
                         gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
                         SetLatestGameplayState_ClientRpc(gameplayState);
                     }
-
-                    //Send inputs for tick
-                    Debug.Log("RecordPlayerInputForTick: " + localPlayer);
-                    localPlayer.RecordPlayerInputForTick(tick);
                 }
                 DisplayTime(timeRemaining);
             }
@@ -317,11 +328,21 @@ namespace Knoxball
             //Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
         }
 
-        IEnumerator ResetGame()
+        IEnumerator ResetGameAsync()
         {
             yield return new WaitForSeconds(2f);
+            ResetGame();
+        }
+        void ResetGame() {
+
             ResetGameObject(ball, new Vector3(0, 0, 0));
-            localPlayer.ResetLocation();
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                clientNeworkPlayerObject.ResetLocation();
+            }
+            //localPlayer.ResetLocation();
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
             SetInGameState(InGameState.Playing);
@@ -340,12 +361,17 @@ namespace Knoxball
                 SetHomeTeamScore_ServerRpc(m_homeTeamScore.Value + 1);
             }
             Celebrate();
-            StartCoroutine(ResetGame());
+            StartCoroutine(ResetGameAsync());
         }
 
         [ClientRpc]
         private void SetLatestGameplayState_ClientRpc(GamePlayState gameplayState)
         {
+            if (IsHost)
+            {
+                Debug.Log("OOps shoudlnt be here");
+                return;
+            }
             if (latestGameplayState.tick < gameplayState.tick)
             {
                 this.latestGameplayState = gameplayState;
@@ -380,31 +406,37 @@ namespace Knoxball
             if (replayTick > tick)
             {
                 Debug.Log("Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
+                return;
             }
             //We need to reset state to state of this tick
-            if (gameplayStateBuffer.Length <= (replayTick % gameplayStateBufferSize))
+            if (gameplayStateBuffer[replayTick % gameplayStateBufferSize] == null)
             {
-                Debug.Log("gameplayStateBuffer.Length: %d" + gameplayStateBuffer.Length + "replayTick % gameplayStateBufferSize" + replayTick % gameplayStateBufferSize);
+                Debug.Log("gameplayStateBuffer is null for tick: " + replayTick + ", current tick: " + tick);
                 return;
             }
             SetGamePlayStateToState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
 
             while (replayTick <= tick)
             {
-                //Apply inputs of this tick from locally stored states
-                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-                {
-                    var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                    Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
-                    clientNeworkPlayerObject.SetInputsForTick(replayTick);
-
-                }
+                SetPlayerInputsForTick(replayTick);
                 Physics.Simulate(Time.fixedDeltaTime);
                 //Now we have resimulated this state, we need to save it again.
                 gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateForTick(replayTick);
 
                 replayTick++;
+            }
+        }
+
+        void SetPlayerInputsForTick(int tick)
+        {
+            //Apply inputs of this tick from locally stored states
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
+                clientNeworkPlayerObject.SetInputsForTick(tick);
+
             }
         }
 
@@ -422,7 +454,7 @@ namespace Knoxball
                 SetAwayTeamScore_ServerRpc(m_awayTeamScore.Value + 1);
             }
             Celebrate();
-            StartCoroutine(ResetGame());
+            StartCoroutine(ResetGameAsync());
         }
 
 
@@ -474,11 +506,6 @@ namespace Knoxball
             return m_LocalUser;
         }
 
-        public void ReplayFromTick(int tick)
-        {
-
-        }
-
         void DisplayTime(float timeToDisplay)
         {
             float minutes = Mathf.FloorToInt(timeToDisplay / 60);
@@ -490,16 +517,21 @@ namespace Knoxball
         /// To verify the connection, invoke a server RPC call that then invokes a client RPC call. After this, the actual setup occurs.
         /// </summary>
         [ServerRpc(RequireOwnership = false)]
-        private void VerifyConnection_ServerRpc(ulong clientId)
+        private void VerifyConnection_ServerRpc(ulong clientId, string lobbyId)
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
-            VerifyConnection_ClientRpc(clientId);
+            m_clientIdToLobbyUserId.Add(clientId, lobbyId);
+            VerifyConnection_ClientRpc(clientId, lobbyId);
         }
 
         [ClientRpc]
-        private void VerifyConnection_ClientRpc(ulong clientId)
+        private void VerifyConnection_ClientRpc(ulong clientId, string lobbyId)
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            if (!m_clientIdToLobbyUserId.ContainsKey(clientId))
+            {
+                m_clientIdToLobbyUserId.Add(clientId, lobbyId);
+            }
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
@@ -539,6 +571,7 @@ namespace Knoxball
         private void BeginGame()
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            ResetGame();
             SetInGameState(InGameState.Playing);
         }
 
@@ -561,6 +594,18 @@ namespace Knoxball
         private void SetTimeRemaining_ServerRpc(float timeRemaining)
         {
             m_timeRemaining.Value = timeRemaining;
+        }
+
+        public LobbyUser GetLobbyUserForClientId(ulong clientId)
+        {
+            if (!m_clientIdToLobbyUserId.ContainsKey(clientId))
+            {
+                Debug.Log("User does not exist: " + clientId);
+                return null;
+            }
+            var lobbyUserId = m_clientIdToLobbyUserId[clientId];
+            Debug.Log("[LobbyUser] clientId: " + clientId + ", lobbyUserId: " + lobbyUserId);
+            return m_lobby.LobbyUsers[lobbyUserId];
         }
     }
 }
