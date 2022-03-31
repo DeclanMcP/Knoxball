@@ -140,7 +140,7 @@ namespace Knoxball
                 UpdatePlayerInput();
 
             }
-            if (IsOwner || IsHost)
+            if (IsOwner)// || IsHost) Test to see if values are being applied 2ice
             {
                 UpdatePlayerState();
             }
@@ -244,11 +244,19 @@ namespace Knoxball
                 return;
             }
             PlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
+            Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
+            //Should this be done here?
+            UpdatePlayerState();
         }
 
-        void UpdatePlayerKickState()
+        public void ResetInputsForTick(int tick)
+        {
+            m_playerInputBuffer[tick % playerInputBufferSize] = null;
+        }
+
+            void UpdatePlayerKickState()
         {
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             SetKicking_ServerRpc(playerComponent.IsKicking());

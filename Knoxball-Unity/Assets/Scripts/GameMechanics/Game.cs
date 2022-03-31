@@ -252,13 +252,12 @@ namespace Knoxball
                 //Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
                 while (this.elapsedTime >= Time.fixedDeltaTime)
                 {
-
                     //Send inputs for tick
-                    Debug.Log("RecordPlayerInputForTick: " + localPlayer);
+                    Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
                     localPlayer.RecordPlayerInputForTick(tick);
                     if (IsHost)
                     {
-                        SetPlayerInputsForTick(tick);
+                        ResetPlayerInputsForTick(tick);
                     }
 
                     this.elapsedTime -= Time.fixedDeltaTime;
@@ -293,8 +292,9 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                //clientPlayerObject.NetworkObjectId
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                gamePlayerStates[i] = clientNeworkPlayerObject.getCurrentPlayerState(clientId);
+                gamePlayerStates[i] = clientNeworkPlayerObject.getCurrentPlayerState(clientNeworkPlayerObject.NetworkObjectId);
                 i++;
 
             }
@@ -334,15 +334,16 @@ namespace Knoxball
             ResetGame();
         }
         void ResetGame() {
-
-            ResetGameObject(ball, new Vector3(0, 0, 0));
-            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            if (IsHost)
             {
-                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                clientNeworkPlayerObject.ResetLocation();
+                ResetGameObject(ball, new Vector3(0, 0, 0));
+                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+                {
+                    var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                    clientNeworkPlayerObject.ResetLocation();
+                }
             }
-            //localPlayer.ResetLocation();
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
             SetInGameState(InGameState.Playing);
@@ -394,7 +395,8 @@ namespace Knoxball
         {
             foreach (GamePlayerState gamePlayerState in gamePlayState.playerStates)
             {
-                var playerObject = NetworkManager.Singleton.ConnectedClients[gamePlayerState.ID].PlayerObject;
+                var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
+                Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
                 playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
             }
             ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
@@ -416,6 +418,7 @@ namespace Knoxball
             }
             SetGamePlayStateToState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
 
+            Debug.Log("[Replay] Replaying with input");
             while (replayTick <= tick)
             {
                 SetPlayerInputsForTick(replayTick);
@@ -425,6 +428,7 @@ namespace Knoxball
 
                 replayTick++;
             }
+            Debug.Log("[Replay] Replaying with input finished");
         }
 
         void SetPlayerInputsForTick(int tick)
@@ -436,6 +440,18 @@ namespace Knoxball
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
                 //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.SetInputsForTick(tick);
+
+            }
+        }
+
+        void ResetPlayerInputsForTick(int tick)
+        {
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
+                clientNeworkPlayerObject.ResetInputsForTick(tick);
 
             }
         }
@@ -571,6 +587,7 @@ namespace Knoxball
         private void BeginGame()
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            
             ResetGame();
             SetInGameState(InGameState.Playing);
         }
