@@ -252,24 +252,29 @@ namespace Knoxball
                 //Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
                 while (this.elapsedTime >= Time.fixedDeltaTime)
                 {
+                    this.elapsedTime -= Time.fixedDeltaTime;
                     //Send inputs for tick
                     Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
                     localPlayer.RecordPlayerInputForTick(tick);
-                    if (IsHost)
-                    {
-                        ResetPlayerInputsForTick(tick);
-                    }
 
-                    this.elapsedTime -= Time.fixedDeltaTime;
+
+
+                    AddForcesToPlayers();
+
                     Physics.Simulate(Time.fixedDeltaTime);
                     tick++;
                     //snapshot this tick state
 
+
                     if (IsHost)
                     {
+                        ResetPlayerInputsForTick(tick);
                         var gameplayState = GetGamePlayStateForTick(tick);
                         gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
-                        SetLatestGameplayState_ClientRpc(gameplayState);
+                        if (tick % 10 == 0)
+                        {
+                            SetLatestGameplayState_ClientRpc(gameplayState);
+                        }
                     }
                 }
                 DisplayTime(timeRemaining);
@@ -284,6 +289,7 @@ namespace Knoxball
                 StartCoroutine(EndGame());
             }
         }
+
 
         private GamePlayState GetGamePlayStateForTick(int stateTick)
         {
@@ -422,6 +428,7 @@ namespace Knoxball
             while (replayTick <= tick)
             {
                 SetPlayerInputsForTick(replayTick);
+                AddForcesToPlayers();
                 Physics.Simulate(Time.fixedDeltaTime);
                 //Now we have resimulated this state, we need to save it again.
                 gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateForTick(replayTick);
@@ -452,6 +459,21 @@ namespace Knoxball
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
                 //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.ResetInputsForTick(tick);
+
+            }
+        }
+        void AddForcesToPlayers()
+        {
+            //NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
+            foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
+            {
+                var clientPlayerObject = keyValuePair.Value;//NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
+                if (clientNeworkPlayerObject != null)
+                {
+                    clientNeworkPlayerObject.ManualUpdate();
+                }
 
             }
         }

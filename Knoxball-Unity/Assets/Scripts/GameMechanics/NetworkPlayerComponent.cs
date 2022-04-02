@@ -133,7 +133,7 @@ namespace Knoxball
         }
 
         // Update is called once per frame
-        void FixedUpdate()
+        public void ManualUpdate()
         {
             if (IsOwner)
             {
