@@ -162,8 +162,14 @@ namespace Knoxball
         public int tick = 0;
         private InGameState inGameState;
         private static int gameplayStateBufferSize = 1024;
+
         private GamePlayState[] gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
+        int latestSentGamePlayStateTick = 0;
+        int latestReceivedInputTick = 0;
+
+
         private GamePlayState latestGameplayState = new GamePlayState(); //Only used by client
+        bool receivedLatestGameplayState = false;
 
         private LobbyUser m_LocalUser;
         private LocalLobby m_lobby;
@@ -200,7 +206,8 @@ namespace Knoxball
             m_lobby = lobby;
             foreach (KeyValuePair<string, LobbyUser> entry in m_lobby.LobbyUsers)
             {
-                print("Lobby User: Id: " + entry.Key + ", name: " + entry.Value.DisplayName + "");
+                //print("Lobby User: Id: " + entry.Key + ", name: " + entry.Value.DisplayName + "");
+                //Looks g9ood on server side
             }
             //Locator.Get.Provide(this); // Simplifies access since some networked objects can't easily communicate locally (e.g. the host might call a ClientRpc without that client knowing where the call originated).
         }
@@ -254,28 +261,78 @@ namespace Knoxball
                 {
                     this.elapsedTime -= Time.fixedDeltaTime;
                     //Send inputs for tick
-                    Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
+                    //Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
                     localPlayer.RecordPlayerInputForTick(tick);
 
 
-
+                    SetPlayerInputsForTick(tick);
                     AddForcesToPlayers();
 
                     Physics.Simulate(Time.fixedDeltaTime);
-                    tick++;
                     //snapshot this tick state
 
 
                     if (IsHost)
                     {
-                        ResetPlayerInputsForTick(tick);
-                        var gameplayState = GetGamePlayStateForTick(tick);
+                        ResetPlayerInputsForTick(tick + (gameplayStateBufferSize/2));
+                        var gameplayState = GetGamePlayStateWithTick(tick);
                         gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
-                        if (tick % 10 == 0)
+                        //if (tick % 10 == 0)
+                        //{
+                        //    //SetLatestGameplayState_ClientRpc(gameplayState);
+                        //    //TODO This is probably not the best time to send the state. It might be better to store
+                        //    //A 'last sent tick' and as inputs come in, physics is replayed from last sent tick to that tick and then sent from that state.
+                        //    //The simulation would need to keep simulating to the locally current tick though
+                        //}
+                    } else
+                    {
+                        localPlayer.ResetInputsForTick(tick + (gameplayStateBufferSize / 2));
+                    }
+                    tick++;
+                }
+
+                if (!IsHost && receivedLatestGameplayState)
+                {
+                    var replayTick = this.latestGameplayState.tick;
+                    SetGamePlayStateToState(this.latestGameplayState);
+                    while (replayTick < tick)
+                    {
+                        //Apply inputs of this tick from locally stored states
+                        localPlayer.SetInputsForTick(replayTick);
+                        //We arent simulating
+                        AddForcesToPlayers();
+                        Physics.Simulate(Time.fixedDeltaTime);
+                        replayTick++;
+                    }
+                    this.receivedLatestGameplayState = false;
+                } else if (IsHost)
+                {
+                    //Keep track of the earliest tick received that contained input that hadnt been simulated
+                    //Resimulate from there.
+                    int latestSyncedInputTick = LatestSyncedInputStateTick_Server();
+                    if (latestSyncedInputTick > latestSentGamePlayStateTick)
+                    {
+                        var replayTick = latestSentGamePlayStateTick;
+                        SetGamePlayStateToState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
+
+                        while (replayTick < tick)
                         {
-                            SetLatestGameplayState_ClientRpc(gameplayState);
+                            SetPlayerInputsForTick(replayTick);
+                            AddForcesToPlayers();
+                            Physics.Simulate(Time.fixedDeltaTime);
+                            //Now we have resimulated this state, we need to save it again.
+                            gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateWithTick(replayTick);
+
+                            replayTick++;
+                            if (latestSyncedInputTick == replayTick)
+                            {
+                                Debug.Log("[SendState] tick: " + tick + ", replayTick: " + replayTick);
+                                SetLatestGameplayState_ClientRpc(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
+                                latestSentGamePlayStateTick = latestSyncedInputTick;
+                            }
                         }
                     }
+                    
                 }
                 DisplayTime(timeRemaining);
             }
@@ -290,8 +347,23 @@ namespace Knoxball
             }
         }
 
+        private int LatestSyncedInputStateTick_Server()
+        {
+            int currentLowestTick = int.MaxValue;
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                currentLowestTick = Math.Min(clientNeworkPlayerObject.latestInputTick, currentLowestTick);
+            }
+            if (currentLowestTick == int.MaxValue)
+            {
+                currentLowestTick = 0;
+            }
+            return currentLowestTick;
+        }
 
-        private GamePlayState GetGamePlayStateForTick(int stateTick)
+        private GamePlayState GetGamePlayStateWithTick(int stateTick)
         {
             var gamePlayerStates = new GamePlayerState[NetworkManager.Singleton.ConnectedClientsIds.Count];
             int i = 0;
@@ -376,24 +448,17 @@ namespace Knoxball
         {
             if (IsHost)
             {
-                Debug.Log("OOps shoudlnt be here");
+                //Debug.Log("OOps shoudlnt be here");
                 return;
             }
             if (latestGameplayState.tick < gameplayState.tick)
             {
                 this.latestGameplayState = gameplayState;
+                this.receivedLatestGameplayState = true;
                 //Take tick from latestGameplay, from that tick with that
                 //gameplay state, replay physics which user inputs included in each step
                 //(this only applies to clients)
-                var replayTick = this.latestGameplayState.tick;
-                SetGamePlayStateToState(gameplayState);
-                while (replayTick <= tick)
-                {
-                    //Apply inputs of this tick from locally stored states
-                    localPlayer.SetInputsForTick(replayTick);
-                    Physics.Simulate(Time.fixedDeltaTime);
-                    replayTick++;
-                }
+                
             }
         }
 
@@ -402,52 +467,43 @@ namespace Knoxball
             foreach (GamePlayerState gamePlayerState in gamePlayState.playerStates)
             {
                 var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
-                Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
+                //Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
                 playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
             }
             ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
         }
 
         //Only handled by the server
-        public void ReplayGameFromTick(int replayTick)
+        //Lets move this to the main update loop
+        public void ReplayGameFromTick_Server(int replayTick)//Might want to kill this function
         {
             if (replayTick > tick)
             {
-                Debug.Log("Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
+                Debug.Log("[Error] Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
                 return;
             }
             //We need to reset state to state of this tick
             if (gameplayStateBuffer[replayTick % gameplayStateBufferSize] == null)
             {
-                Debug.Log("gameplayStateBuffer is null for tick: " + replayTick + ", current tick: " + tick);
+                //Debug.Log("gameplayStateBuffer is null for tick: " + replayTick + ", current tick: " + tick);
                 return;
             }
-            SetGamePlayStateToState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
 
-            Debug.Log("[Replay] Replaying with input");
-            while (replayTick <= tick)
-            {
-                SetPlayerInputsForTick(replayTick);
-                AddForcesToPlayers();
-                Physics.Simulate(Time.fixedDeltaTime);
-                //Now we have resimulated this state, we need to save it again.
-                gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateForTick(replayTick);
-
-                replayTick++;
-            }
-            Debug.Log("[Replay] Replaying with input finished");
+            
+            //Debug.Log("[Replay] Replaying with input finished");
         }
 
         void SetPlayerInputsForTick(int tick)
         {
             //Apply inputs of this tick from locally stored states
-            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
-                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientPlayerObject = keyValuePair.Value;
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
-                clientNeworkPlayerObject.SetInputsForTick(tick);
-
+                if (clientNeworkPlayerObject != null)
+                {
+                    clientNeworkPlayerObject.SetInputsForTick(tick);
+                }
             }
         }
 
@@ -464,14 +520,13 @@ namespace Knoxball
         }
         void AddForcesToPlayers()
         {
-            //NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
-                var clientPlayerObject = keyValuePair.Value;//NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+                var clientPlayerObject = keyValuePair.Value;
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 if (clientNeworkPlayerObject != null)
                 {
+                    //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + ", Key:" + keyValuePair.Key);
                     clientNeworkPlayerObject.ManualUpdate();
                 }
 
@@ -506,7 +561,7 @@ namespace Knoxball
         {
             SetInGameState(InGameState.GoalCelebrating);
             score.text = CurrentScore();
-            print(CurrentScore());
+            //print(CurrentScore());
             celebration.GetComponent<CelebrationComponent>().Celebrate();
             mainCamera.SetActive(false);
         }
@@ -524,13 +579,13 @@ namespace Knoxball
 
         public void OnMenuClicked()
         {
-            print("onMenuClicked!");
+            //print("onMenuClicked!");
             menuOverlay.SetActive(true);
         }
 
         public void OnKickClicked(bool isPressed)
         {
-            print("onKickClicked!" + isPressed);
+            //print("onKickClicked!" + isPressed);
             kickCallBack(isPressed);
         }
 
@@ -557,7 +612,7 @@ namespace Knoxball
         [ServerRpc(RequireOwnership = false)]
         private void VerifyConnection_ServerRpc(ulong clientId, string lobbyId)
         {
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             m_clientIdToLobbyUserId.Add(clientId, lobbyId);
             VerifyConnection_ClientRpc(clientId, lobbyId);
         }
@@ -565,14 +620,14 @@ namespace Knoxball
         [ClientRpc]
         private void VerifyConnection_ClientRpc(ulong clientId, string lobbyId)
         {
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             if (!m_clientIdToLobbyUserId.ContainsKey(clientId))
             {
                 m_clientIdToLobbyUserId.Add(clientId, lobbyId);
             }
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
-                Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+                //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
                 VerifyConnectionConfirm_ServerRpc(clientId);
             }
         }
@@ -586,14 +641,14 @@ namespace Knoxball
             //m_dataStore.AddPlayer(clientData.id, clientData.name);
             bool areAllPlayersConnected = NetworkManager.ConnectedClients.Count >= m_expectedPlayerCount; // The game will begin at this point, or else there's a timeout for booting any unconnected players.
 
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "areAllPlayersConnected: " + areAllPlayersConnected);
+            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "areAllPlayersConnected: " + areAllPlayersConnected);
             VerifyConnectionConfirm_ClientRpc(clientId, areAllPlayersConnected);
         }
 
         [ClientRpc]
         private void VerifyConnectionConfirm_ClientRpc(ulong clientId, bool canBeginGame)
         {
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 m_onConnectionVerified?.Invoke();

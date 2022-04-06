@@ -70,6 +70,7 @@ namespace Knoxball
         //private NetworkVariable<NetworkString> m_name = new NetworkVariable<NetworkString>(NetworkVariableReadPermission.Everyone, "");
         private static int playerInputBufferSize = 1024;
         private PlayerInputState[] m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
+        public int latestInputTick = 0;
 
         private bool m_kickState = false;
         private Vector3 m_directionState;
@@ -140,10 +141,7 @@ namespace Knoxball
                 UpdatePlayerInput();
 
             }
-            if (IsOwner)// || IsHost) Test to see if values are being applied 2ice
-            {
-                UpdatePlayerState();
-            }
+            UpdatePlayerState();
         }
 
         void UpdatePlayerInput()
@@ -152,7 +150,7 @@ namespace Knoxball
             m_kickState = m_kickButtonState || Input.GetKey(kick);
         }
 
-        void UpdatePlayerState()
+        public void UpdatePlayerState()
         {
             gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
             HandleKickEvent();
@@ -184,14 +182,14 @@ namespace Knoxball
             var playerInput = new PlayerInputState(tick, m_directionState, IsKicking());
 
             if (IsHost) {
-                storePlayerInputState(playerInput);
+                StorePlayerInputState(playerInput);
                 return;
             }
-            Debug.Log("Sending input, tick: " + playerInput.tick + ", inputstate: " + playerInput);
-            if (ShouldSendInput(playerInput))
-            {
+            //Debug.Log("Sending input, tick: " + playerInput.tick + ", inputstate: " + playerInput);
+            //if (ShouldSendInput(playerInput))
+            //{
                 SendInput_ServerRpc(playerInput);
-            }
+            //}
         }
 
         bool ShouldSendInput(PlayerInputState playerInput)
@@ -207,16 +205,18 @@ namespace Knoxball
         [ServerRpc] // Leave (RequireOwnership = true)
         private void SendInput_ServerRpc(PlayerInputState inputState)
         {
-            Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
-            storePlayerInputState(inputState);
+            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
+            StorePlayerInputState(inputState);
+            //TODO something going wrong here, client affects the host player
             //Server player received a clients input, replay the physics from tick provided.
-            Game.instance.ReplayGameFromTick(inputState.tick);
+            //Currently removed UpdatePlayerState from SetInputsForTick - not the solution
+            Game.instance.ReplayGameFromTick_Server(inputState.tick);
         }
 
-        private void storePlayerInputState(PlayerInputState inputState)
+        private void StorePlayerInputState(PlayerInputState inputState)
         {
             m_playerInputBuffer[inputState.tick % playerInputBufferSize] = inputState;
-
+            latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
             //Now the server receives a given player input, it can update the simulation for a given tick. Each player can store a
             //list of tick states so that when we rerun the simulation on the server side, it can run through these new values.
         }
@@ -238,17 +238,17 @@ namespace Knoxball
         public void SetInputsForTick(int tick)
         {
             if (m_playerInputBuffer[tick % playerInputBufferSize] == null) {
-                Debug.Log("No inputs found for this player..");
+                //Debug.Log("No inputs found for this player..");
                 m_kickState = false;
                 m_directionState = Vector3.zero;
                 return;
             }
             PlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
-            Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
+            //Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
             //Should this be done here?
-            UpdatePlayerState();
+            //UpdatePlayerState();
         }
 
         public void ResetInputsForTick(int tick)
@@ -265,7 +265,7 @@ namespace Knoxball
         [ServerRpc]
         private void SetKicking_ServerRpc(bool kicking)
         {
-            Debug.Log("[TestRpc] SetKicking_ServerRpc");
+            //Debug.Log("[TestRpc] SetKicking_ServerRpc");
             //m_kicking.Value = kicking;
         }
 
@@ -276,7 +276,7 @@ namespace Knoxball
 
         public void ResetLocation()
         {
-            Debug.Log("setting location!");
+            //Debug.Log("setting location!");
             var lobbyUser = Game.instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
             if (lobbyUser == null)
             {
