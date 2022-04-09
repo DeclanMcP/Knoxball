@@ -136,11 +136,11 @@ namespace Knoxball
         // Update is called once per frame
         public void ManualUpdate()
         {
-            if (IsOwner)
-            {
-                UpdatePlayerInput();
+            //if (IsOwner)
+            //{
+            //    //UpdatePlayerInput();
 
-            }
+            //}
             UpdatePlayerState();
         }
 
@@ -179,10 +179,12 @@ namespace Knoxball
         public void RecordPlayerInputForTick(int tick)
         {
             if (!IsOwner) { return; }
+            UpdatePlayerInput();
             var playerInput = new PlayerInputState(tick, m_directionState, IsKicking());
 
+            StorePlayerInputState(playerInput);
+
             if (IsHost) {
-                StorePlayerInputState(playerInput);
                 return;
             }
             //Debug.Log("Sending input, tick: " + playerInput.tick + ", inputstate: " + playerInput);

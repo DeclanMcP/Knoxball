@@ -323,13 +323,14 @@ namespace Knoxball
                             //Now we have resimulated this state, we need to save it again.
                             gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateWithTick(replayTick);
 
-                            replayTick++;
                             if (latestSyncedInputTick == replayTick)
                             {
                                 Debug.Log("[SendState] tick: " + tick + ", replayTick: " + replayTick);
                                 SetLatestGameplayState_ClientRpc(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
                                 latestSentGamePlayStateTick = latestSyncedInputTick;
                             }
+
+                            replayTick++;
                         }
                     }
                     
