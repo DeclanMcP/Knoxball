@@ -160,13 +160,11 @@ namespace Knoxball
         float timeRemaining = 180;
         float elapsedTime = 0;
         public int tick = 0;
-        private InGameState inGameState;
+        public InGameState inGameState;
         private static int gameplayStateBufferSize = 1024;
 
         private GamePlayState[] gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
         int latestSentGamePlayStateTick = 0;
-        int latestReceivedInputTick = 0;
-
 
         private GamePlayState latestGameplayState = new GamePlayState(); //Only used by client
         bool receivedLatestGameplayState = false;
@@ -277,13 +275,6 @@ namespace Knoxball
                         ResetPlayerInputsForTick(tick + (gameplayStateBufferSize/2));
                         var gameplayState = GetGamePlayStateWithTick(tick);
                         gameplayStateBuffer[tick % gameplayStateBufferSize] = gameplayState;
-                        //if (tick % 10 == 0)
-                        //{
-                        //    //SetLatestGameplayState_ClientRpc(gameplayState);
-                        //    //TODO This is probably not the best time to send the state. It might be better to store
-                        //    //A 'last sent tick' and as inputs come in, physics is replayed from last sent tick to that tick and then sent from that state.
-                        //    //The simulation would need to keep simulating to the locally current tick though
-                        //}
                     } else
                     {
                         localPlayer.ResetInputsForTick(tick + (gameplayStateBufferSize / 2));
@@ -295,6 +286,7 @@ namespace Knoxball
                 {
                     var replayTick = this.latestGameplayState.tick;
                     SetGamePlayStateToState(this.latestGameplayState);
+                    Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
                     while (replayTick < tick)
                     {
                         //Apply inputs of this tick from locally stored states
@@ -361,6 +353,7 @@ namespace Knoxball
             {
                 currentLowestTick = 0;
             }
+            Debug.Log($"currentLowestTick: ${currentLowestTick}");
             return currentLowestTick;
         }
 
@@ -407,21 +400,57 @@ namespace Knoxball
             //Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
         }
 
+        void ResetGameBuffers()
+        {
+            tick = 0;
+            if (IsHost)
+            {
+                gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
+                latestSentGamePlayStateTick = 0;
+                ResetPlayerInputBuffers();
+
+            } else
+            {
+                latestGameplayState = new GamePlayState(); //Only used by client
+                receivedLatestGameplayState = false;
+                localPlayer.ResetInputBuffer();
+            }
+        }
+
+        void ResetPlayerInputBuffers()
+        {
+            foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
+            {
+                var clientPlayerObject = keyValuePair.Value;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                if (clientNeworkPlayerObject != null)
+                {
+                    clientNeworkPlayerObject.ResetInputBuffer();
+                }
+            }
+        }
+
+
         IEnumerator ResetGameAsync()
         {
             yield return new WaitForSeconds(2f);
             ResetGame();
         }
         void ResetGame() {
+            
+                ResetGameObject(ball, new Vector3(0, 0, 0));
+                foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
+                {
+                    var clientPlayerObject = keyValuePair.Value;
+                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                    if (clientNeworkPlayerObject != null)
+                    {
+                        clientNeworkPlayerObject.ResetLocation();
+                    }
+                }
             if (IsHost)
             {
-                ResetGameObject(ball, new Vector3(0, 0, 0));
-                foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-                {
-                    var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                    clientNeworkPlayerObject.ResetLocation();
-                }
+                ResetGameBuffers();
             }
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
@@ -454,6 +483,7 @@ namespace Knoxball
             }
             if (latestGameplayState.tick < gameplayState.tick)
             {
+                Debug.Log($"current tick: ${tick} newGPTick: ${gameplayState.tick}");
                 this.latestGameplayState = gameplayState;
                 this.receivedLatestGameplayState = true;
                 //Take tick from latestGameplay, from that tick with that
@@ -474,8 +504,6 @@ namespace Knoxball
             ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
         }
 
-        //Only handled by the server
-        //Lets move this to the main update loop
         public void ReplayGameFromTick_Server(int replayTick)//Might want to kill this function
         {
             if (replayTick > tick)
@@ -539,6 +567,13 @@ namespace Knoxball
         private void SetHomeTeamScore_ServerRpc(int score)
         {
             m_homeTeamScore.Value = score;
+            ResetGameBuffers_ClientRpc();
+        }
+
+        [ClientRpc]
+        private void ResetGameBuffers_ClientRpc()
+        {
+            ResetGameBuffers();
         }
 
         public void AwayTeamScored()
@@ -556,6 +591,7 @@ namespace Knoxball
         private void SetAwayTeamScore_ServerRpc(int score)
         {
             m_awayTeamScore.Value = score;
+            ResetGameBuffers_ClientRpc();
         }
 
         public void Celebrate()

@@ -179,6 +179,7 @@ namespace Knoxball
         public void RecordPlayerInputForTick(int tick)
         {
             if (!IsOwner) { return; }
+            if (Game.instance.inGameState != InGameState.Playing) { return; }
             UpdatePlayerInput();
             var playerInput = new PlayerInputState(tick, m_directionState, IsKicking());
 
@@ -207,7 +208,7 @@ namespace Knoxball
         [ServerRpc] // Leave (RequireOwnership = true)
         private void SendInput_ServerRpc(PlayerInputState inputState)
         {
-            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
+            Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
             StorePlayerInputState(inputState);
             //TODO something going wrong here, client affects the host player
             //Server player received a clients input, replay the physics from tick provided.
@@ -264,6 +265,12 @@ namespace Knoxball
             SetKicking_ServerRpc(playerComponent.IsKicking());
         }
 
+        public void ResetInputBuffer()
+        {
+            m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
+            latestInputTick = 0;
+    }
+
         [ServerRpc]
         private void SetKicking_ServerRpc(bool kicking)
         {
@@ -279,6 +286,7 @@ namespace Knoxball
         public void ResetLocation()
         {
             //Debug.Log("setting location!");
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
             var lobbyUser = Game.instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
             if (lobbyUser == null)
             {
