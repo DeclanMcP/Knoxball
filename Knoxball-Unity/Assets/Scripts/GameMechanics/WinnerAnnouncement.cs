@@ -32,7 +32,7 @@ namespace Knoxball
             }
             else if (gameTeam == GameTeam.Away)
             {
-                return "Home Team Wins";
+                return "Away Team Wins";
             }
             return "Draw";
         }

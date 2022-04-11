@@ -49,8 +49,7 @@ namespace Knoxball
         {
             serializer.SerializeValue(ref tick);
             serializer.SerializeValue(ref ballState);
-            //serializer.SerializeValue(ref playerStates);
-            // Length
+
             int length = 0;
             if (!serializer.IsReader)
             {
@@ -59,7 +58,6 @@ namespace Knoxball
 
             serializer.SerializeValue(ref length);
 
-            // Array
             if (serializer.IsReader)
             {
                 playerStates = new GamePlayerState[length];
@@ -108,9 +106,6 @@ namespace Knoxball
         internal Vector3 velocity;
         internal Quaternion rotation;
 
-        //public BallState()
-        //{
-        //}
 
         public BallState(Vector3 position, Vector3 velocity, Quaternion rotation)
         {
@@ -202,18 +197,16 @@ namespace Knoxball
             m_onGameEnd = onGameEnd;
             m_LocalUser = localUser;
             m_lobby = lobby;
-            foreach (KeyValuePair<string, LobbyUser> entry in m_lobby.LobbyUsers)
-            {
-                //print("Lobby User: Id: " + entry.Key + ", name: " + entry.Value.DisplayName + "");
-                //Looks g9ood on server side
-            }
-            //Locator.Get.Provide(this); // Simplifies access since some networked objects can't easily communicate locally (e.g. the host might call a ClientRpc without that client knowing where the call originated).
+            //foreach (KeyValuePair<string, LobbyUser> entry in m_lobby.LobbyUsers)
+            //{
+            //    Debug.Log("Lobby User: Id: " + entry.Key + ", name: " + entry.Value.DisplayName + "");
+            //}
         }
 
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             VerifyConnection_ServerRpc(NetworkManager.Singleton.LocalClientId, m_LocalUser.ID);
         }
 
@@ -264,11 +257,9 @@ namespace Knoxball
 
 
                     SetPlayerInputsForTick(tick);
-                    AddForcesToPlayers();
+                    AddForcesToGame();
 
                     Physics.Simulate(Time.fixedDeltaTime);
-                    //snapshot this tick state
-
 
                     if (IsHost)
                     {
@@ -286,13 +277,13 @@ namespace Knoxball
                 {
                     var replayTick = this.latestGameplayState.tick;
                     SetGamePlayStateToState(this.latestGameplayState);
-                    Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
+                    //Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
                     while (replayTick < tick)
                     {
                         //Apply inputs of this tick from locally stored states
                         localPlayer.SetInputsForTick(replayTick);
                         //We arent simulating
-                        AddForcesToPlayers();
+                        AddForcesToGame();
                         Physics.Simulate(Time.fixedDeltaTime);
                         replayTick++;
                     }
@@ -310,14 +301,14 @@ namespace Knoxball
                         while (replayTick < tick)
                         {
                             SetPlayerInputsForTick(replayTick);
-                            AddForcesToPlayers();
+                            AddForcesToGame();
                             Physics.Simulate(Time.fixedDeltaTime);
                             //Now we have resimulated this state, we need to save it again.
                             gameplayStateBuffer[replayTick % gameplayStateBufferSize] = GetGamePlayStateWithTick(replayTick);
 
                             if (latestSyncedInputTick == replayTick)
                             {
-                                Debug.Log("[SendState] tick: " + tick + ", replayTick: " + replayTick);
+                                //Debug.Log("[SendState] tick: " + tick + ", replayTick: " + replayTick);
                                 SetLatestGameplayState_ClientRpc(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
                                 latestSentGamePlayStateTick = latestSyncedInputTick;
                             }
@@ -353,7 +344,7 @@ namespace Knoxball
             {
                 currentLowestTick = 0;
             }
-            Debug.Log($"currentLowestTick: ${currentLowestTick}");
+            //Debug.Log($"currentLowestTick: ${currentLowestTick}");
             return currentLowestTick;
         }
 
@@ -364,7 +355,6 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                //clientPlayerObject.NetworkObjectId
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
                 gamePlayerStates[i] = clientNeworkPlayerObject.getCurrentPlayerState(clientNeworkPlayerObject.NetworkObjectId);
                 i++;
@@ -397,7 +387,6 @@ namespace Knoxball
             yield return new WaitForSeconds(2f);
             SetInGameState(InGameState.Finished);
             m_onGameEnd();
-            //Locator.Get.Messenger.OnReceiveMessage(MessageType.ChangeGameState, GameState.JoinMenu);
         }
 
         void ResetGameBuffers()
@@ -483,12 +472,9 @@ namespace Knoxball
             }
             if (latestGameplayState.tick < gameplayState.tick)
             {
-                Debug.Log($"current tick: ${tick} newGPTick: ${gameplayState.tick}");
+                //Debug.Log($"current tick: ${tick} newGPTick: ${gameplayState.tick}");
                 this.latestGameplayState = gameplayState;
                 this.receivedLatestGameplayState = true;
-                //Take tick from latestGameplay, from that tick with that
-                //gameplay state, replay physics which user inputs included in each step
-                //(this only applies to clients)
                 
             }
         }
@@ -502,24 +488,6 @@ namespace Knoxball
                 playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
             }
             ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
-        }
-
-        public void ReplayGameFromTick_Server(int replayTick)//Might want to kill this function
-        {
-            if (replayTick > tick)
-            {
-                Debug.Log("[Error] Shouldnt get here: replaytick: " + replayTick + "tick: " + tick);
-                return;
-            }
-            //We need to reset state to state of this tick
-            if (gameplayStateBuffer[replayTick % gameplayStateBufferSize] == null)
-            {
-                //Debug.Log("gameplayStateBuffer is null for tick: " + replayTick + ", current tick: " + tick);
-                return;
-            }
-
-            
-            //Debug.Log("[Replay] Replaying with input finished");
         }
 
         void SetPlayerInputsForTick(int tick)
@@ -547,7 +515,7 @@ namespace Knoxball
 
             }
         }
-        void AddForcesToPlayers()
+        void AddForcesToGame()
         {
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
@@ -558,8 +526,8 @@ namespace Knoxball
                     //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + ", Key:" + keyValuePair.Key);
                     clientNeworkPlayerObject.ManualUpdate();
                 }
-
             }
+            ball.GetComponent<BallComponent>().ManualUpdate();
         }
 
 
@@ -628,7 +596,7 @@ namespace Knoxball
 
         public void OnReceiveMessage(MessageType type, object msg)
         {
-            //if (type == MessageType.)
+
         }
 
         public LobbyUser LocalUser()

@@ -22,6 +22,7 @@ namespace Knoxball
         public KeyCode kick = KeyCode.Space;
 
         float m_ForceStrength = 10.0f;
+        float maxSpeed = 3.0f;
         private bool m_kickButtonState = false;
         public TMP_Text displayName;
 
@@ -63,11 +64,6 @@ namespace Knoxball
             }
             // ~INetworkSerializable
         }
-
-        //private NetworkVariable<Vector3> m_position = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
-        //private NetworkVariable<Vector3> m_velocity = new NetworkVariable<Vector3>(NetworkVariableReadPermission.Everyone, Vector3.zero); // (Using a NetworkTransform to sync position would also work.)
-        //private NetworkVariable<bool> m_kicking = new NetworkVariable<bool>(NetworkVariableReadPermission.Everyone, false);
-        //private NetworkVariable<NetworkString> m_name = new NetworkVariable<NetworkString>(NetworkVariableReadPermission.Everyone, "");
         private static int playerInputBufferSize = 1024;
         private PlayerInputState[] m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
         public int latestInputTick = 0;
@@ -87,12 +83,8 @@ namespace Knoxball
                 followCamera.target2 = transform;
 
                 ResetLocation();
-
-                if (IsDisplayNameAvailable())
-                {
-                    Debug.Log("DisplayName: " + Game.instance.LocalUser().DisplayName);
-                    displayName.text = Game.instance.LocalUser().DisplayName;//m_name.Value;
-                }
+                Debug.Log("DisplayName: " + Game.instance.LocalUser().DisplayName);
+                displayName.text = Game.instance.LocalUser().DisplayName;
             }
             else
             {
@@ -124,23 +116,12 @@ namespace Knoxball
         void HandleKickEvent()
         {
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
-            var previousKicking = playerComponent.IsKicking();
-            
             playerComponent.OnKickStateChange(m_kickState);
-            //if (previousKicking != playerComponent.IsKicking())
-            //{
-            //    UpdatePlayerKickState();
-            //}
         }
 
         // Update is called once per frame
         public void ManualUpdate()
         {
-            //if (IsOwner)
-            //{
-            //    //UpdatePlayerInput();
-
-            //}
             UpdatePlayerState();
         }
 
@@ -153,6 +134,11 @@ namespace Knoxball
         public void UpdatePlayerState()
         {
             gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
+
+            if (GetComponent<Rigidbody>().velocity.magnitude > maxSpeed)
+            {
+                GetComponent<Rigidbody>().velocity = Vector3.ClampMagnitude(GetComponent<Rigidbody>().velocity, maxSpeed); ;
+            }
             HandleKickEvent();
         }
 
@@ -188,11 +174,7 @@ namespace Knoxball
             if (IsHost) {
                 return;
             }
-            //Debug.Log("Sending input, tick: " + playerInput.tick + ", inputstate: " + playerInput);
-            //if (ShouldSendInput(playerInput))
-            //{
-                SendInput_ServerRpc(playerInput);
-            //}
+            SendInput_ServerRpc(playerInput);
         }
 
         bool ShouldSendInput(PlayerInputState playerInput)
@@ -208,20 +190,14 @@ namespace Knoxball
         [ServerRpc] // Leave (RequireOwnership = true)
         private void SendInput_ServerRpc(PlayerInputState inputState)
         {
-            Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
+            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
             StorePlayerInputState(inputState);
-            //TODO something going wrong here, client affects the host player
-            //Server player received a clients input, replay the physics from tick provided.
-            //Currently removed UpdatePlayerState from SetInputsForTick - not the solution
-            Game.instance.ReplayGameFromTick_Server(inputState.tick);
         }
 
         private void StorePlayerInputState(PlayerInputState inputState)
         {
             m_playerInputBuffer[inputState.tick % playerInputBufferSize] = inputState;
             latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
-            //Now the server receives a given player input, it can update the simulation for a given tick. Each player can store a
-            //list of tick states so that when we rerun the simulation on the server side, it can run through these new values.
         }
 
         internal GamePlayerState getCurrentPlayerState(ulong iD)
@@ -235,7 +211,7 @@ namespace Knoxball
             transform.position = playerState.position;
             GetComponent<Rigidbody>().velocity = playerState.velocity;
             transform.rotation = playerState.rotation;
-            //missing kick
+            m_kickState = playerState.kicking;
         }
 
         public void SetInputsForTick(int tick)
@@ -250,8 +226,6 @@ namespace Knoxball
             //Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
-            //Should this be done here?
-            //UpdatePlayerState();
         }
 
         public void ResetInputsForTick(int tick)
@@ -259,28 +233,10 @@ namespace Knoxball
             m_playerInputBuffer[tick % playerInputBufferSize] = null;
         }
 
-            void UpdatePlayerKickState()
-        {
-            var playerComponent = gameObject.GetComponent<PlayerComponent>();
-            SetKicking_ServerRpc(playerComponent.IsKicking());
-        }
-
         public void ResetInputBuffer()
         {
             m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
             latestInputTick = 0;
-    }
-
-        [ServerRpc]
-        private void SetKicking_ServerRpc(bool kicking)
-        {
-            //Debug.Log("[TestRpc] SetKicking_ServerRpc");
-            //m_kicking.Value = kicking;
-        }
-
-        private bool IsDisplayNameAvailable()
-        {
-            return !(Game.instance == null || Game.instance.LocalUser() == null);
         }
 
         public void ResetLocation()
@@ -293,6 +249,7 @@ namespace Knoxball
                 Debug.Log("Could not find lobby user: " + lobbyUser);
                 return;
             }
+            displayName.text = GetUsername();
             if (lobbyUser.UserTeam == UserTeam.Home)
             {
                 transform.position = new Vector3(-5, 0, 0);
@@ -303,7 +260,6 @@ namespace Knoxball
             }
             else //Spectator
             {
-                //gameObject.gameObject.collider.enabled = false;
                 gameObject.GetComponent<Collider>().enabled = false;
             }
         }
