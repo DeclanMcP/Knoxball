@@ -5,6 +5,7 @@ using Unity.Netcode;
 using TMPro;
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 
 public delegate void KickCallBack(bool isPressed);
 
@@ -24,6 +25,23 @@ namespace Knoxball
         Unknown,
         Home,
         Away
+    }
+
+    public struct NetworkString : INetworkSerializable
+    {
+        private FixedString32Bytes info;
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref info);
+        }
+
+        public override string ToString()
+        {
+            return info.ToString();
+        }
+
+        public static implicit operator string(NetworkString s) => s.ToString();
+        public static implicit operator NetworkString(string s) => new NetworkString() { info = new FixedString32Bytes(s) };
     }
 
     internal class GamePlayState: INetworkSerializable
@@ -67,6 +85,65 @@ namespace Knoxball
             {
                 serializer.SerializeValue(ref playerStates[n]);
             }
+        }
+        // ~INetworkSerializable
+    }
+
+    internal class GameData : INetworkSerializable
+    {
+        internal PlayerData[] playerDatas;
+
+        public GameData()
+        {
+
+        }
+
+        public GameData(PlayerData[] playerDatas)
+        {
+            this.playerDatas = playerDatas;
+        }
+
+        // INetworkSerializable
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+
+            int length = 0;
+            if (!serializer.IsReader)
+            {
+                length = playerDatas.Length;
+            }
+
+            serializer.SerializeValue(ref length);
+
+            if (serializer.IsReader)
+            {
+                playerDatas = new PlayerData[length];
+            }
+
+            for (int n = 0; n < length; ++n)
+            {
+                serializer.SerializeValue(ref playerDatas[n]);
+            }
+        }
+        // ~INetworkSerializable
+    }
+
+    public struct PlayerData : INetworkSerializable
+    {
+        internal ulong clientId;
+        internal NetworkString lobbyId;
+
+        public PlayerData(ulong clientId, NetworkString lobbyId)
+        {
+            this.clientId = clientId;
+            this.lobbyId = lobbyId;
+        }
+
+        // INetworkSerializable
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref clientId);
+            serializer.SerializeValue(ref lobbyId);
         }
         // ~INetworkSerializable
     }
@@ -206,8 +283,9 @@ namespace Knoxball
 
         public override void OnNetworkSpawn()
         {
-            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             VerifyConnection_ServerRpc(NetworkManager.Singleton.LocalClientId, m_LocalUser.ID);
+            //LinkClientIdLobbyId_ClientRpc(NetworkManager.Singleton.LocalClientId, m_LocalUser.ID);
         }
 
         void Update()
@@ -427,16 +505,16 @@ namespace Knoxball
         }
         void ResetGame() {
             
-                ResetGameObject(ball, new Vector3(0, 0, 0));
-                foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
+            ResetGameObject(ball, new Vector3(0, 0, 0));
+            foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
+            {
+                var clientPlayerObject = keyValuePair.Value;
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                if (clientNeworkPlayerObject != null)
                 {
-                    var clientPlayerObject = keyValuePair.Value;
-                    var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
-                    if (clientNeworkPlayerObject != null)
-                    {
-                        clientNeworkPlayerObject.ResetLocation();
-                    }
+                    clientNeworkPlayerObject.ResetLocation();
                 }
+            }
             if (IsHost)
             {
                 ResetGameBuffers();
@@ -625,11 +703,7 @@ namespace Knoxball
         [ClientRpc]
         private void VerifyConnection_ClientRpc(ulong clientId, string lobbyId)
         {
-            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
-            if (!m_clientIdToLobbyUserId.ContainsKey(clientId))
-            {
-                m_clientIdToLobbyUserId.Add(clientId, lobbyId);
-            }
+            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
@@ -637,9 +711,6 @@ namespace Knoxball
             }
         }
 
-        /// <summary>
-        /// Once the connection is confirmed, spawn a player cursor and check if all players have connected.
-        /// </summary>
         [ServerRpc(RequireOwnership = false)]
         private void VerifyConnectionConfirm_ServerRpc(ulong clientId)
         {
@@ -647,21 +718,44 @@ namespace Knoxball
             bool areAllPlayersConnected = NetworkManager.ConnectedClients.Count >= m_expectedPlayerCount; // The game will begin at this point, or else there's a timeout for booting any unconnected players.
 
             //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "areAllPlayersConnected: " + areAllPlayersConnected);
-            VerifyConnectionConfirm_ClientRpc(clientId, areAllPlayersConnected);
+            var gameData = GenerateGameData();
+            VerifyConnectionConfirm_ClientRpc(clientId, areAllPlayersConnected, gameData);
+        }
+
+        private GameData GenerateGameData()
+        {
+            var playerDatas = new PlayerData[m_clientIdToLobbyUserId.Keys.Count];
+            var index = 0;
+            foreach (var clientId in m_clientIdToLobbyUserId.Keys)
+            {
+                var lobbyId = m_clientIdToLobbyUserId[clientId];
+                playerDatas[index] = new PlayerData(clientId, lobbyId);
+                index++;
+            }
+            var gameData = new GameData(playerDatas);
+            return gameData;
         }
 
         [ClientRpc]
-        private void VerifyConnectionConfirm_ClientRpc(ulong clientId, bool canBeginGame)
+        private void VerifyConnectionConfirm_ClientRpc(ulong clientId, bool canBeginGame, GameData gameData)
         {
-            //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "clientId: " + clientId);
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 m_onConnectionVerified?.Invoke();
-
+                
             }
 
             if (canBeginGame)
             {
+                foreach (var playerData in gameData.playerDatas)
+                {
+                    if (!m_clientIdToLobbyUserId.ContainsKey(clientId))
+                    {
+                        Debug.Log($"[GameState]: gameData: ${playerData.clientId} ${playerData.lobbyId}");
+                        m_clientIdToLobbyUserId.Add(playerData.clientId, playerData.lobbyId);
+                    }
+                }
                 BeginGame();
             }
         }
