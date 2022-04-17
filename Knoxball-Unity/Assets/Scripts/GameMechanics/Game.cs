@@ -1,205 +1,14 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
 using System;
 using System.Collections.Generic;
-using Unity.Collections;
 
 public delegate void KickCallBack(bool isPressed);
 
 namespace Knoxball
 {
-    public enum InGameState
-    {
-        Starting = 1,
-        Playing,
-        GoalCelebrating,
-        Ending,
-        Finished
-    }
-
-    public enum GameTeam
-    {
-        Unknown,
-        Home,
-        Away
-    }
-
-    public struct NetworkString : INetworkSerializable
-    {
-        private FixedString32Bytes info;
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref info);
-        }
-
-        public override string ToString()
-        {
-            return info.ToString();
-        }
-
-        public static implicit operator string(NetworkString s) => s.ToString();
-        public static implicit operator NetworkString(string s) => new NetworkString() { info = new FixedString32Bytes(s) };
-    }
-
-    internal class GamePlayState: INetworkSerializable
-    {
-        internal int tick;
-        internal BallState ballState = new BallState();
-        internal GamePlayerState[] playerStates;
-
-        public GamePlayState()
-        {
-            this.ballState = new BallState();
-        }
-
-        public GamePlayState(int tick, GamePlayerState[] playerStates, BallState ballState)
-        {
-            this.tick = tick;
-            this.ballState = ballState;
-            this.playerStates = playerStates;
-        }
-
-        // INetworkSerializable
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref tick);
-            serializer.SerializeValue(ref ballState);
-
-            int length = 0;
-            if (!serializer.IsReader)
-            {
-                length = playerStates.Length;
-            }
-
-            serializer.SerializeValue(ref length);
-
-            if (serializer.IsReader)
-            {
-                playerStates = new GamePlayerState[length];
-            }
-
-            for (int n = 0; n < length; ++n)
-            {
-                serializer.SerializeValue(ref playerStates[n]);
-            }
-        }
-        // ~INetworkSerializable
-    }
-
-    internal class GameData : INetworkSerializable
-    {
-        internal PlayerData[] playerDatas;
-
-        public GameData()
-        {
-
-        }
-
-        public GameData(PlayerData[] playerDatas)
-        {
-            this.playerDatas = playerDatas;
-        }
-
-        // INetworkSerializable
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-
-            int length = 0;
-            if (!serializer.IsReader)
-            {
-                length = playerDatas.Length;
-            }
-
-            serializer.SerializeValue(ref length);
-
-            if (serializer.IsReader)
-            {
-                playerDatas = new PlayerData[length];
-            }
-
-            for (int n = 0; n < length; ++n)
-            {
-                serializer.SerializeValue(ref playerDatas[n]);
-            }
-        }
-        // ~INetworkSerializable
-    }
-
-    public struct PlayerData : INetworkSerializable
-    {
-        internal ulong clientId;
-        internal NetworkString lobbyId;
-
-        public PlayerData(ulong clientId, NetworkString lobbyId)
-        {
-            this.clientId = clientId;
-            this.lobbyId = lobbyId;
-        }
-
-        // INetworkSerializable
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref clientId);
-            serializer.SerializeValue(ref lobbyId);
-        }
-        // ~INetworkSerializable
-    }
-
-    public struct GamePlayerState: INetworkSerializable
-    {
-        internal ulong ID;
-        internal Vector3 position;
-        internal Vector3 velocity;
-        internal Quaternion rotation;
-        internal bool kicking;
-
-        public GamePlayerState(ulong iD, Vector3 position, Vector3 velocity, Quaternion rotation, bool kicking)
-        {
-            ID = iD;
-            this.position = position;
-            this.velocity = velocity;
-            this.rotation = rotation;
-            this.kicking = kicking;
-        }
-
-        // INetworkSerializable
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref ID);
-            serializer.SerializeValue(ref position);
-            serializer.SerializeValue(ref velocity);
-            serializer.SerializeValue(ref rotation);
-            serializer.SerializeValue(ref kicking);
-        }
-        // ~INetworkSerializable
-    }
-
-    public struct BallState: INetworkSerializable
-    {
-        internal Vector3 position;
-        internal Vector3 velocity;
-        internal Quaternion rotation;
-
-
-        public BallState(Vector3 position, Vector3 velocity, Quaternion rotation)
-        {
-            this.position = position;
-            this.velocity = velocity;
-            this.rotation = rotation;
-        }
-
-        // INetworkSerializable
-        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-        {
-            serializer.SerializeValue(ref position);
-            serializer.SerializeValue(ref velocity);
-            serializer.SerializeValue(ref rotation);
-        }
-        // ~INetworkSerializable
-    }
 
     public class Game : NetworkBehaviour, IReceiveMessages
     {
@@ -209,7 +18,6 @@ namespace Knoxball
         int awayTeamScore = 0;
         private NetworkVariable<int> m_homeTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
         private NetworkVariable<int> m_awayTeamScore = new NetworkVariable<int>(NetworkVariableReadPermission.Everyone, 0);
-
         private NetworkVariable<float> m_timeRemaining = new NetworkVariable<float>(NetworkVariableReadPermission.Everyone, 180);
         private NetworkVariable<InGameState> m_InGameState = new NetworkVariable<InGameState>(NetworkVariableReadPermission.Everyone, InGameState.Starting);
 
@@ -235,10 +43,10 @@ namespace Knoxball
         public InGameState inGameState;
         private static int gameplayStateBufferSize = 1024;
 
-        private GamePlayState[] gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
+        private NetworkGamePlayState[] gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];//For the host
         int latestSentGamePlayStateTick = 0;
 
-        private GamePlayState latestGameplayState = new GamePlayState(); //Only used by client
+        private NetworkGamePlayState latestGameplayState = new NetworkGamePlayState(); //Only used by client
         bool receivedLatestGameplayState = false;
 
         private LobbyUser m_LocalUser;
@@ -426,9 +234,9 @@ namespace Knoxball
             return currentLowestTick;
         }
 
-        private GamePlayState GetGamePlayStateWithTick(int stateTick)
+        private NetworkGamePlayState GetGamePlayStateWithTick(int stateTick)
         {
-            var gamePlayerStates = new GamePlayerState[NetworkManager.Singleton.ConnectedClientsIds.Count];
+            var gamePlayerStates = new NetworkGamePlayerState[NetworkManager.Singleton.ConnectedClientsIds.Count];
             int i = 0;
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
@@ -439,7 +247,7 @@ namespace Knoxball
 
             }
             var ballState = ball.GetComponent<BallComponent>().getCurrentState();
-            return new GamePlayState(stateTick, gamePlayerStates, ballState);
+            return new NetworkGamePlayState(stateTick, gamePlayerStates, ballState);
         }
 
         void AnounceWinner()
@@ -472,13 +280,13 @@ namespace Knoxball
             tick = 0;
             if (IsHost)
             {
-                gameplayStateBuffer = new GamePlayState[gameplayStateBufferSize];//For the host
+                gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];//For the host
                 latestSentGamePlayStateTick = 0;
                 ResetPlayerInputBuffers();
 
             } else
             {
-                latestGameplayState = new GamePlayState(); //Only used by client
+                latestGameplayState = new NetworkGamePlayState(); //Only used by client
                 receivedLatestGameplayState = false;
                 localPlayer.ResetInputBuffer();
             }
@@ -541,7 +349,7 @@ namespace Knoxball
         }
 
         [ClientRpc]
-        private void SetLatestGameplayState_ClientRpc(GamePlayState gameplayState)
+        private void SetLatestGameplayState_ClientRpc(NetworkGamePlayState gameplayState)
         {
             if (IsHost)
             {
@@ -557,9 +365,9 @@ namespace Knoxball
             }
         }
 
-        private void SetGamePlayStateToState(GamePlayState gamePlayState)
+        private void SetGamePlayStateToState(NetworkGamePlayState gamePlayState)
         {
-            foreach (GamePlayerState gamePlayerState in gamePlayState.playerStates)
+            foreach (NetworkGamePlayerState gamePlayerState in gamePlayState.playerStates)
             {
                 var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
                 //Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
@@ -722,22 +530,22 @@ namespace Knoxball
             VerifyConnectionConfirm_ClientRpc(clientId, areAllPlayersConnected, gameData);
         }
 
-        private GameData GenerateGameData()
+        private NetworkGameData GenerateGameData()
         {
-            var playerDatas = new PlayerData[m_clientIdToLobbyUserId.Keys.Count];
+            var playerDatas = new NetworkPlayerData[m_clientIdToLobbyUserId.Keys.Count];
             var index = 0;
             foreach (var clientId in m_clientIdToLobbyUserId.Keys)
             {
                 var lobbyId = m_clientIdToLobbyUserId[clientId];
-                playerDatas[index] = new PlayerData(clientId, lobbyId);
+                playerDatas[index] = new NetworkPlayerData(clientId, lobbyId);
                 index++;
             }
-            var gameData = new GameData(playerDatas);
+            var gameData = new NetworkGameData(playerDatas);
             return gameData;
         }
 
         [ClientRpc]
-        private void VerifyConnectionConfirm_ClientRpc(ulong clientId, bool canBeginGame, GameData gameData)
+        private void VerifyConnectionConfirm_ClientRpc(ulong clientId, bool canBeginGame, NetworkGameData gameData)
         {
             Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + "clientId: " + clientId);
             if (clientId == NetworkManager.Singleton.LocalClientId)

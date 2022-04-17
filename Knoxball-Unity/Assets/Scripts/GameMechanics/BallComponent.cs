@@ -12,7 +12,6 @@ namespace Knoxball
         public void ManualUpdate()
         {
             UpdateVelocity();
-
         }
 
         void UpdateVelocity()
@@ -37,12 +36,12 @@ namespace Knoxball
             }
         }
 
-        internal BallState getCurrentState()
+        internal NetworkBallState getCurrentState()
         {
-            return new BallState(transform.position, GetComponent<Rigidbody>().velocity, transform.rotation);
+            return new NetworkBallState(transform.position, GetComponent<Rigidbody>().velocity, transform.rotation);
         }
 
-        public void SetState(BallState ballState)
+        public void SetState(NetworkBallState ballState)
         {
             transform.position = ballState.position;
             GetComponent<Rigidbody>().velocity = ballState.velocity;

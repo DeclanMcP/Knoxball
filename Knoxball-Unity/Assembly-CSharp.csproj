@@ -141,6 +141,15 @@
     <Compile Include="Assets/Scripts/UI/PopUpUI.cs" />
     <Compile Include="Assets/Scripts/Relay/RelayUtpClient.cs" />
     <Compile Include="Assets/Scripts/Infrastructure/LogHandlerSettings.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkPlayerInputState.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/InGameState.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/GameTeam.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkString.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkGamePlayState.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkGameData.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkPlayerData.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkGamePlayerState.cs" />
+    <Compile Include="Assets/Scripts/GameMechanics/ClientSidePrediction/NetworkBallState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
@@ -903,10 +912,6 @@
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
       <Project>{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
-    </ProjectReference>
-    <ProjectReference Include="ClientNetworkTransform.csproj">
-      <Project>{70B13B62-9FEA-B003-A2AB-8796562A3755}</Project>
-      <Name>ClientNetworkTransform</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

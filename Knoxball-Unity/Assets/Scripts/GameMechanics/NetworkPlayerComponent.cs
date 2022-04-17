@@ -35,36 +35,8 @@ namespace Knoxball
             left = KeyCode.LeftArrow
         };
 
-        public class PlayerInputState: INetworkSerializable
-        {
-            public int tick;
-            public Vector3 direction = Vector3.zero;
-            public bool kicking;
-
-            public PlayerInputState()
-            {
-
-            }
-
-            public PlayerInputState(int tick, Vector3 direction, bool kicking)
-            {
-                this.tick = tick;
-                this.direction = direction;
-                this.kicking = kicking;
-            }
-
-
-            // INetworkSerializable
-            public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-            {
-                serializer.SerializeValue(ref tick);
-                serializer.SerializeValue(ref direction);
-                serializer.SerializeValue(ref kicking);
-            }
-            // ~INetworkSerializable
-        }
         private static int playerInputBufferSize = 1024;
-        private PlayerInputState[] m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
+        private NetworkPlayerInputState[] m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
         public int latestInputTick = 0;
 
         private bool m_kickState = false;
@@ -166,7 +138,7 @@ namespace Knoxball
             if (!IsOwner) { return; }
             if (Game.instance.inGameState != InGameState.Playing) { return; }
             UpdatePlayerInput();
-            var playerInput = new PlayerInputState(tick, m_directionState, IsKicking());
+            var playerInput = new NetworkPlayerInputState(tick, m_directionState, IsKicking());
 
             StorePlayerInputState(playerInput);
 
@@ -176,7 +148,7 @@ namespace Knoxball
             SendInput_ServerRpc(playerInput);
         }
 
-        bool ShouldSendInput(PlayerInputState playerInput)
+        bool ShouldSendInput(NetworkPlayerInputState playerInput)
         {
             return playerInput.direction != Vector3.zero || playerInput.kicking;
         }
@@ -187,24 +159,24 @@ namespace Knoxball
         }
 
         [ServerRpc] // Leave (RequireOwnership = true)
-        private void SendInput_ServerRpc(PlayerInputState inputState)
+        private void SendInput_ServerRpc(NetworkPlayerInputState inputState)
         {
             //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
             StorePlayerInputState(inputState);
         }
 
-        private void StorePlayerInputState(PlayerInputState inputState)
+        private void StorePlayerInputState(NetworkPlayerInputState inputState)
         {
             m_playerInputBuffer[inputState.tick % playerInputBufferSize] = inputState;
             latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
         }
 
-        internal GamePlayerState getCurrentPlayerState(ulong iD)
+        internal NetworkGamePlayerState getCurrentPlayerState(ulong iD)
         {
-            return new GamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
+            return new NetworkGamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
         }
 
-        public void SetPlayerState(GamePlayerState playerState)
+        public void SetPlayerState(NetworkGamePlayerState playerState)
         {
             //Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
             transform.position = playerState.position;
@@ -221,7 +193,7 @@ namespace Knoxball
                 m_directionState = Vector3.zero;
                 return;
             }
-            PlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
+            NetworkPlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
             //Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
@@ -234,7 +206,7 @@ namespace Knoxball
 
         public void ResetInputBuffer()
         {
-            m_playerInputBuffer = new PlayerInputState[playerInputBufferSize];
+            m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
             latestInputTick = 0;
         }
 

@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientNetworkTransform", "ClientNetworkTransform.csproj", "{70B13B62-9FEA-B003-A2AB-8796562A3755}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{C239C9DD-7CEE-CA9A-9E21-53F5E1DAD46D}"
 EndProject
 Global
@@ -23,10 +21,6 @@ Global
 		{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70B13B62-9FEA-B003-A2AB-8796562A3755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70B13B62-9FEA-B003-A2AB-8796562A3755}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70B13B62-9FEA-B003-A2AB-8796562A3755}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70B13B62-9FEA-B003-A2AB-8796562A3755}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C239C9DD-7CEE-CA9A-9E21-53F5E1DAD46D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C239C9DD-7CEE-CA9A-9E21-53F5E1DAD46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C239C9DD-7CEE-CA9A-9E21-53F5E1DAD46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
