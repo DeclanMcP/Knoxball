@@ -36,7 +36,7 @@ namespace Knoxball
             }
         }
 
-        internal NetworkBallState getCurrentState()
+        public NetworkBallState GetCurrentState()
         {
             return new NetworkBallState(transform.position, GetComponent<Rigidbody>().velocity, transform.rotation);
         }

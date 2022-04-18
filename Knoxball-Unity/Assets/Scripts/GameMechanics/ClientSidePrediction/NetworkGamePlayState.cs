@@ -2,11 +2,11 @@
 
 namespace Knoxball
 {
-    internal class NetworkGamePlayState : INetworkSerializable
+    public class NetworkGamePlayState : INetworkSerializable
     {
-        internal int tick;
-        internal NetworkBallState ballState = new NetworkBallState();
-        internal NetworkGamePlayerState[] playerStates;
+        public int tick;
+        public NetworkBallState ballState = new NetworkBallState();
+        public NetworkGamePlayerState[] playerStates;
 
         public NetworkGamePlayState()
         {

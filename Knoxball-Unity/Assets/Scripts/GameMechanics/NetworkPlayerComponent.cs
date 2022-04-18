@@ -42,20 +42,20 @@ namespace Knoxball
         private bool m_kickState = false;
         private Vector3 m_directionState;
 
-        // Start is called before the first frame update
-
         public override void OnNetworkSpawn()
         {
             if (IsOwner)
             {
-                Game.instance.kickCallBack = new KickCallBack(OnKick);
-                Game.instance.localPlayer = this;
-                var followCamera = Game.instance.mainCamera.GetComponent<Camera2DFollow>();
+                Game.Instance.kickCallBack = new KickCallBack(OnKick);
+                //TODO fix codesmell, let Game set it to whatever it wants?
+                Game.Instance.GetComponent<ClientSidePredictionManager>().localPlayer = this;
+
+                var followCamera = Game.Instance.mainCamera.GetComponent<Camera2DFollow>();
                 followCamera.target2 = transform;
 
                 ResetLocation();
-                Debug.Log("DisplayName: " + Game.instance.LocalUser().DisplayName);
-                displayName.text = Game.instance.LocalUser().DisplayName;
+                Debug.Log("DisplayName: " + Game.Instance.LocalUser().DisplayName);
+                displayName.text = Game.Instance.LocalUser().DisplayName;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace Knoxball
 
         string GetUsername()
         {
-            var lobbyUser = Game.instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
+            var lobbyUser = Game.Instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
             if (lobbyUser == null)
             {
                 Debug.Log("Could not find lobby user: " + lobbyUser);
@@ -129,14 +129,14 @@ namespace Knoxball
 
         Vector3 GenerateJoystickForce()
         {
-            Vector3 direction = Vector3.up * Game.instance.variableJoystick.Vertical + Vector3.right * Game.instance.variableJoystick.Horizontal;
+            Vector3 direction = Vector3.up * Game.Instance.variableJoystick.Vertical + Vector3.right * Game.Instance.variableJoystick.Horizontal;
             return direction * m_ForceStrength * Time.fixedDeltaTime;
         }
 
         public void RecordPlayerInputForTick(int tick)
         {
             if (!IsOwner) { return; }
-            if (Game.instance.inGameState != InGameState.Playing) { return; }
+            if (Game.Instance.inGameState != InGameState.Playing) { return; }
             UpdatePlayerInput();
             var playerInput = new NetworkPlayerInputState(tick, m_directionState, IsKicking());
 
@@ -146,11 +146,6 @@ namespace Knoxball
                 return;
             }
             SendInput_ServerRpc(playerInput);
-        }
-
-        bool ShouldSendInput(NetworkPlayerInputState playerInput)
-        {
-            return playerInput.direction != Vector3.zero || playerInput.kicking;
         }
 
         private bool IsKicking()
@@ -171,7 +166,7 @@ namespace Knoxball
             latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
         }
 
-        internal NetworkGamePlayerState getCurrentPlayerState(ulong iD)
+        public NetworkGamePlayerState GetCurrentPlayerState(ulong iD)
         {
             return new NetworkGamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
         }
@@ -214,7 +209,7 @@ namespace Knoxball
         {
             //Debug.Log("setting location!");
             GetComponent<Rigidbody>().velocity = Vector3.zero;
-            var lobbyUser = Game.instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
+            var lobbyUser = Game.Instance.GetLobbyUserForClientId(GetComponent<NetworkObject>().OwnerClientId);
             if (lobbyUser == null)
             {
                 Debug.Log("Could not find lobby user: " + lobbyUser);

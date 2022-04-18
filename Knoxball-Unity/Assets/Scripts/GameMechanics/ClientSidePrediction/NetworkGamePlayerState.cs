@@ -6,7 +6,7 @@ namespace Knoxball
 
     public struct NetworkGamePlayerState : INetworkSerializable
     {
-        internal ulong ID;
+        public ulong ID;
         internal Vector3 position;
         internal Vector3 velocity;
         internal Quaternion rotation;

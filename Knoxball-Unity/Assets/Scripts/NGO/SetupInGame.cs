@@ -45,7 +45,7 @@ namespace Knoxball.ngo
         {
             m_inGameManagerObj = GameObject.Instantiate(m_prefabNetworkManager);
             m_networkManager = m_inGameManagerObj.GetComponentInChildren<NetworkManager>();
-            Game.instance.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser, m_lobby);
+            Game.Instance.Initialize(OnConnectionVerified, m_lobby.PlayerCount, OnGameEnd, m_localUser, m_lobby);
 
             UnityTransport transport = m_inGameManagerObj.GetComponentInChildren<UnityTransport>();
             if (m_localUser.IsHost)

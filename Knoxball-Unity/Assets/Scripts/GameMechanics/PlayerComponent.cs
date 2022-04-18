@@ -27,7 +27,7 @@ namespace Knoxball
         {
             if (kicking && !this.kicking)
             {
-                Game.instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
+                Game.Instance.ball.GetComponent<BallComponent>().Kick(gameObject.transform.position);
                 LightUp();
             }
             else if (!kicking && this.kicking)

@@ -230,6 +230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 7130176806192542181}
+  target2: {fileID: 0}
   damping: 1
   lookAheadFactor: 3
   lookAheadReturnSpeed: 0.5
@@ -245,6 +246,7 @@ GameObject:
   - component: {fileID: 4896538756791112706}
   - component: {fileID: 635255988185148458}
   - component: {fileID: 4142864685092975578}
+  - component: {fileID: 3452565301144676324}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -285,10 +287,10 @@ MonoBehaviour:
   celebration: {fileID: 75114524130340768}
   mainCamera: {fileID: 5646524678167781565}
   menuOverlay: {fileID: 2396209757787634672}
-  LocalPlayer: {fileID: 0}
   winnerAnnouncement: {fileID: 2933221981560547099}
   timeText: {fileID: 2812384497019455027}
   score: {fileID: 5961527144859613911}
+  inGameState: 0
 --- !u!114 &4142864685092975578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +307,21 @@ MonoBehaviour:
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &3452565301144676324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5703136184218250874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d24ccbbf7f1e476d9cd2b7afb6a64bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localPlayer: {fileID: 0}
+  ball: {fileID: 0}
+  tick: 0
 --- !u!1 &9019482255774987314
 GameObject:
   m_ObjectHideFlags: 0
@@ -1021,13 +1038,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
---- !u!4 &7130176806192542181 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
-  m_PrefabInstance: {fileID: 8470595882348219052}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &7130176806192542186 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1693036887743494982, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
+  m_PrefabInstance: {fileID: 8470595882348219052}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7130176806192542181 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1693036887743494985, guid: 6ebd7368ccdb24c4f99a5d7388bac610, type: 3}
   m_PrefabInstance: {fileID: 8470595882348219052}
   m_PrefabAsset: {fileID: 0}
