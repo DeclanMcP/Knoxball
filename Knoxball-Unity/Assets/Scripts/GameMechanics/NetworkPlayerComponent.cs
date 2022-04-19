@@ -46,9 +46,10 @@ namespace Knoxball
         {
             if (IsOwner)
             {
-                Game.Instance.kickCallBack = new KickCallBack(OnKick);
+
                 //TODO fix codesmell, let Game set it to whatever it wants?
-                Game.Instance.GetComponent<ClientSidePredictionManager>().localPlayer = this;
+                Game.Instance.kickCallBack = new KickCallBack(OnKick);
+                //Game.Instance.GetComponent<ClientSidePredictionManager>().localPlayer = this;
 
                 var followCamera = Game.Instance.mainCamera.GetComponent<Camera2DFollow>();
                 followCamera.target2 = transform;
