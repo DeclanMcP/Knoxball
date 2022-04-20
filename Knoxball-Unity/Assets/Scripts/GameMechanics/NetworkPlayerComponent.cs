@@ -94,6 +94,7 @@ namespace Knoxball
         // Update is called once per frame
         public void ManualUpdate()
         {
+            //Debug.Log("Manual Update");
             UpdatePlayerState();
         }
 
@@ -142,6 +143,7 @@ namespace Knoxball
             var playerInput = new NetworkPlayerInputState(tick, m_directionState, IsKicking());
 
             StorePlayerInputState(playerInput);
+            //Debug.Log($"Stored player input state ${playerInput.direction}");
 
             if (IsHost) {
                 return;
@@ -190,7 +192,7 @@ namespace Knoxball
                 return;
             }
             NetworkPlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
-            //Debug.Log("Tick: " + tick + ", input: " + playerInputState.direction);
+            //Debug.Log("SetInputsForTick Tick: " + tick + ", input: " + playerInputState.direction);
             m_kickState = playerInputState.kicking;
             m_directionState = playerInputState.direction;
         }

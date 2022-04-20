@@ -11,16 +11,26 @@ namespace Knoxball
         private NetworkGamePlayState latestGameplayState = new NetworkGamePlayState(); //Only used by client
         bool receivedLatestGameplayState = false;
         IClientSidePredictionGameManipulator manipulator;
+        NetworkPlayerComponent m_localPlayer;
 
         public void SetGameManipulator(IClientSidePredictionGameManipulator manipulator)
         {
             this.manipulator = manipulator;
         }
 
+
+        NetworkPlayerComponent GetLocalPlayer()
+        {
+            if (m_localPlayer == null)
+            {
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
+            }
+            return m_localPlayer;
+        }
+
         public void ResetPlayerInputsForTick(int tick)
         {
-            var localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
-            localPlayer.ResetInputsForTick(tick + (gameplayStateBufferSize / 2));
+            GetLocalPlayer().ResetInputsForTick(tick + (gameplayStateBufferSize / 2));
         }
 
         public void SaveCurrentGamePlayStateWithTick(int tick)
@@ -37,8 +47,7 @@ namespace Knoxball
                 while (replayTick < currentTick)
                 {
                     //Apply inputs of this tick from locally stored states
-                    var localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
-                    localPlayer.SetInputsForTick(replayTick);
+                    GetLocalPlayer().SetInputsForTick(replayTick);
                     //We arent simulating
                     manipulator.AddForcesToGame();
                     Physics.Simulate(Time.fixedDeltaTime);
@@ -52,8 +61,7 @@ namespace Knoxball
         {
             latestGameplayState = new NetworkGamePlayState(); //Only used by client
             receivedLatestGameplayState = false;
-            var localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
-            localPlayer.ResetInputBuffer();
+            GetLocalPlayer().ResetInputBuffer();
         }
 
         public void ReceivedGamePlayState(NetworkGamePlayState gamePlayState)

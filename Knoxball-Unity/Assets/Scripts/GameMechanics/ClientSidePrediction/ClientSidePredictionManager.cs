@@ -11,6 +11,8 @@ namespace Knoxball
         public int tick = 0;
         float elapsedTime = 0;
         IClientSidePredictionExecutor executor;
+        private static int gameplayStateBufferSize = 1024;
+        NetworkPlayerComponent m_localPlayer;
 
         public override void OnNetworkSpawn()
         {
@@ -25,6 +27,16 @@ namespace Knoxball
             executor.SetGameManipulator(this);
         }
 
+        NetworkPlayerComponent GetLocalPlayer()
+        {
+
+            if (m_localPlayer == null)
+            {
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
+            }
+            return m_localPlayer;
+        }
+
         public void GameLoop()
         {
             this.elapsedTime += Time.deltaTime;
@@ -34,8 +46,7 @@ namespace Knoxball
                 this.elapsedTime -= Time.fixedDeltaTime;
                 //Send inputs for tick
                 //Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
-                var localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
-                localPlayer.RecordPlayerInputForTick(tick);
+                GetLocalPlayer().RecordPlayerInputForTick(tick);
 
 
                 SetPlayerInputsForTick(tick);
@@ -43,7 +54,7 @@ namespace Knoxball
 
                 Physics.Simulate(Time.fixedDeltaTime);
 
-                executor.ResetPlayerInputsForTick(tick);
+                executor.ResetPlayerInputsForTick(tick + (gameplayStateBufferSize / 2));
                 executor.SaveCurrentGamePlayStateWithTick(tick);
                 tick++;
             }
