@@ -5,7 +5,7 @@ using UnityStandardAssets._2D;
 
 namespace Knoxball
 {
-    public class NetworkPlayerComponent : NetworkBehaviour
+    public class NetworkPlayerComponent : NetworkBehaviour, IClientSidePredictionPlayerController
     {
         //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
         [System.Serializable]
@@ -35,9 +35,6 @@ namespace Knoxball
             left = KeyCode.LeftArrow
         };
 
-        private static int playerInputBufferSize = 1024;
-        private NetworkPlayerInputState[] m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
-        public int latestInputTick = 0;
 
         private bool m_kickState = false;
         private Vector3 m_directionState;
@@ -64,6 +61,7 @@ namespace Knoxball
                 displayName.text = GetUsername();
             }
 
+            GetComponent<ClientSidePredictionPlayer>().SetPlayerController(this);
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             playerComponent.SetLocalPlayer(IsOwner);
         }
@@ -95,16 +93,16 @@ namespace Knoxball
         public void ManualUpdate()
         {
             //Debug.Log("Manual Update");
-            UpdatePlayerState();
+            AddForces();
         }
 
-        void UpdatePlayerInput()
+        public void UpdatePlayerInput()
         {
             m_directionState = GenerateKeypadForce() + GenerateJoystickForce();
             m_kickState = m_kickButtonState || Input.GetKey(kick);
         }
 
-        public void UpdatePlayerState()
+        public void AddForces()
         {
             gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
 
@@ -135,77 +133,27 @@ namespace Knoxball
             return direction * m_ForceStrength * Time.fixedDeltaTime;
         }
 
-        public void RecordPlayerInputForTick(int tick)
+        public void ResetInputState()
         {
-            if (!IsOwner) { return; }
-            if (Game.Instance.inGameState != InGameState.Playing) { return; }
-            UpdatePlayerInput();
-            var playerInput = new NetworkPlayerInputState(tick, m_directionState, IsKicking());
-
-            StorePlayerInputState(playerInput);
-            //Debug.Log($"Stored player input state ${playerInput.direction}");
-
-            if (IsHost) {
-                return;
-            }
-            SendInput_ServerRpc(playerInput);
+            //Debug.Log("No inputs found for this player..");
+            m_kickState = false;
+            m_directionState = Vector3.zero;
         }
 
-        private bool IsKicking()
+        public void SetInputStateToState(NetworkPlayerInputState inputState)
         {
-            return m_kickState;
+            //Debug.Log("SetInputsForTick Tick: " + tick + ", input: " + playerInputState.direction);
+            m_kickState = inputState.kicking;
+            m_directionState = inputState.direction;
         }
 
-        [ServerRpc] // Leave (RequireOwnership = true)
-        private void SendInput_ServerRpc(NetworkPlayerInputState inputState)
-        {
-            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
-            StorePlayerInputState(inputState);
-        }
-
-        private void StorePlayerInputState(NetworkPlayerInputState inputState)
-        {
-            m_playerInputBuffer[inputState.tick % playerInputBufferSize] = inputState;
-            latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
-        }
-
-        public NetworkGamePlayerState GetCurrentPlayerState(ulong iD)
-        {
-            return new NetworkGamePlayerState(iD, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, IsKicking());
-        }
-
-        public void SetPlayerState(NetworkGamePlayerState playerState)
+        public void SetPlayerState(NetworkGamePlayerState playerState)//Make this state generic?
         {
             //Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
             transform.position = playerState.position;
             GetComponent<Rigidbody>().velocity = playerState.velocity;
             transform.rotation = playerState.rotation;
             m_kickState = playerState.kicking;
-        }
-
-        public void SetInputsForTick(int tick)
-        {
-            if (m_playerInputBuffer[tick % playerInputBufferSize] == null) {
-                //Debug.Log("No inputs found for this player..");
-                m_kickState = false;
-                m_directionState = Vector3.zero;
-                return;
-            }
-            NetworkPlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
-            //Debug.Log("SetInputsForTick Tick: " + tick + ", input: " + playerInputState.direction);
-            m_kickState = playerInputState.kicking;
-            m_directionState = playerInputState.direction;
-        }
-
-        public void ResetInputsForTick(int tick)
-        {
-            m_playerInputBuffer[tick % playerInputBufferSize] = null;
-        }
-
-        public void ResetInputBuffer()
-        {
-            m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
-            latestInputTick = 0;
         }
 
         public void ResetLocation()
@@ -231,6 +179,16 @@ namespace Knoxball
             {
                 gameObject.GetComponent<Collider>().enabled = false;
             }
+        }
+
+        public NetworkGamePlayerState GetPlayerState()
+        {
+            return new NetworkGamePlayerState(0, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, m_kickState);
+        }
+
+        public NetworkPlayerInputState GetPlayerInputState()
+        {
+            return new NetworkPlayerInputState(0, m_directionState, m_kickState);
         }
     }
 

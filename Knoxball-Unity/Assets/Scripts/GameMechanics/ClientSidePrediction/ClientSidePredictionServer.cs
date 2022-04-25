@@ -22,7 +22,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.ResetInputsForTick(tick);
 
@@ -43,7 +43,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 gamePlayerStates[i] = clientNeworkPlayerObject.GetCurrentPlayerState(clientNeworkPlayerObject.NetworkObjectId);
                 i++;
 
@@ -89,7 +89,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 currentLowestTick = Math.Min(clientNeworkPlayerObject.latestInputTick, currentLowestTick);
             }
             if (currentLowestTick == int.MaxValue)
@@ -113,7 +113,7 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.ResetInputBuffer();

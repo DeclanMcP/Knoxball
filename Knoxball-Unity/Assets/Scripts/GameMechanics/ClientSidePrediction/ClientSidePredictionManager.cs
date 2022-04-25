@@ -12,11 +12,11 @@ namespace Knoxball
         float elapsedTime = 0;
         IClientSidePredictionExecutor executor;
         private static int gameplayStateBufferSize = 1024;
-        NetworkPlayerComponent m_localPlayer;
+        ClientSidePredictionPlayer m_localPlayer;
 
         public override void OnNetworkSpawn()
         {
-            Debug.Log($"Is host? ${IsHost}, Is client? ${IsClient}");
+            //Debug.Log($"Is host? ${IsHost}, Is client? ${IsClient}");
             if (IsHost)
             {
                 executor = new ClientSidePredictionServer();
@@ -27,12 +27,12 @@ namespace Knoxball
             executor.SetGameManipulator(this);
         }
 
-        NetworkPlayerComponent GetLocalPlayer()
+        ClientSidePredictionPlayer GetLocalPlayer()
         {
 
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionPlayer>();
             }
             return m_localPlayer;
         }
@@ -89,7 +89,7 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.SetInputsForTick(tick);
@@ -103,11 +103,11 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + ", Key:" + keyValuePair.Key);
-                    clientNeworkPlayerObject.ManualUpdate();
+                    clientNeworkPlayerObject.AddForces();
                 }
             }
             Game.Instance.ball.GetComponent<BallComponent>().ManualUpdate();
@@ -119,7 +119,7 @@ namespace Knoxball
             {
                 var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
                 //Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
-                playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
+                playerObject.GetComponent<ClientSidePredictionPlayer>().SetPlayerState(gamePlayerState);
             }
             Game.Instance.ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
         }

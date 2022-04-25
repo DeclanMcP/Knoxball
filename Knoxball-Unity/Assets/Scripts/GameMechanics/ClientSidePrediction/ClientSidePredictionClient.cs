@@ -11,7 +11,7 @@ namespace Knoxball
         private NetworkGamePlayState latestGameplayState = new NetworkGamePlayState(); //Only used by client
         bool receivedLatestGameplayState = false;
         IClientSidePredictionGameManipulator manipulator;
-        NetworkPlayerComponent m_localPlayer;
+        ClientSidePredictionPlayer m_localPlayer;
 
         public void SetGameManipulator(IClientSidePredictionGameManipulator manipulator)
         {
@@ -19,11 +19,11 @@ namespace Knoxball
         }
 
 
-        NetworkPlayerComponent GetLocalPlayer()
+        ClientSidePredictionPlayer GetLocalPlayer()
         {
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<NetworkPlayerComponent>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionPlayer>();
             }
             return m_localPlayer;
         }
