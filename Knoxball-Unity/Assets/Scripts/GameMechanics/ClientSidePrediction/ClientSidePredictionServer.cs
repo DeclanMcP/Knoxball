@@ -103,7 +103,7 @@ namespace Knoxball
 
         public void ResetGameBuffers()
         {
-            gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];//For the host
+            gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];
             latestSentGamePlayStateTick = 0;
             ResetPlayerInputBuffers();
         }

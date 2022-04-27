@@ -19,7 +19,7 @@ namespace Knoxball
         {
             if (!IsOwner) { return; }
             if (Game.Instance.inGameState != InGameState.Playing) { return; }
-            m_PlayerController.UpdatePlayerInput();
+            m_PlayerController.UpdatePlayerInput();//Should this be here..?
 
             //Have the player generate the inputstate, we want this monobehaviour to be generic if possible
             var playerInput = m_PlayerController.GetPlayerInputState();

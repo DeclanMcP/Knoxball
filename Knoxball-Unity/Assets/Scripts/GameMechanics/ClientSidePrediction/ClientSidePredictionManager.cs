@@ -8,7 +8,7 @@ namespace Knoxball
 {
     public class ClientSidePredictionManager: NetworkBehaviour, IClientSidePredictionGameManipulator
     {
-        public int tick = 0;
+        private int tick = 0;
         float elapsedTime = 0;
         IClientSidePredictionExecutor executor;
         private static int gameplayStateBufferSize = 1024;
@@ -65,6 +65,7 @@ namespace Knoxball
 
         public void ResetGameBuffers()
         {
+            tick = 0;
             if (executor != null)
             {
                 executor.ResetGameBuffers();
