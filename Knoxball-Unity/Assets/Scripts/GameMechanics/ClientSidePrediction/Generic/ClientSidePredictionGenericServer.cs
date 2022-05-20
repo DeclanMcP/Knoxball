@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace Knoxball
 {
-    public class ClientSidePredictionServer : IClientSidePredictionExecutor
+    public class ClientSidePredictionGenericServer<T> : IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
         private static int gameplayStateBufferSize = 1024;
-        private NetworkGamePlayState[] gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];//For the host
+        private T[] gameplayStateBuffer = new T[gameplayStateBufferSize];//For the host
         int latestSentGamePlayStateTick = 0;
-        IClientSidePredictionGameManipulator manipulator;
+        IClientSidePredictionGenericGameManipulator<T> manipulator;
 
-        public void SetGameManipulator(IClientSidePredictionGameManipulator manipulator)
+        public void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator)
         {
             this.manipulator = manipulator;
         }
@@ -36,27 +36,16 @@ namespace Knoxball
         }
 
 
-        private NetworkGamePlayState GetGamePlayStateWithTick(int stateTick)
+        private T GetGamePlayStateWithTick(int stateTick)
         {
-            var gamePlayerStates = new NetworkGamePlayerState[NetworkManager.Singleton.ConnectedClientsIds.Count];
-            int i = 0;
-            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-            {
-                var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
-                gamePlayerStates[i] = clientNeworkPlayerObject.GetCurrentPlayerState(clientNeworkPlayerObject.NetworkObjectId);
-                i++;
-
-            }
-            var ballState = Game.Instance.ball.GetComponent<BallComponent>().GetCurrentState();
-            return new NetworkGamePlayState(stateTick, gamePlayerStates, ballState);
+            return manipulator.GetGamePlayStateWithTick(stateTick);
         }
 
         public void ReplayPhysics(int currentTick)
         {
             //Keep track of the earliest tick received that contained input that hadnt been simulated
             //Resimulate from there.
-            int latestSyncedInputTick = LatestSyncedInputStateTick_Server();
+            int latestSyncedInputTick = LatestSyncedInputStateTick();
             if (latestSyncedInputTick > latestSentGamePlayStateTick)
             {
                 var replayTick = latestSentGamePlayStateTick;
@@ -72,7 +61,7 @@ namespace Knoxball
 
                     if (latestSyncedInputTick == replayTick)
                     {
-                        //Debug.Log("[SendState] tick: " + tick + ", replayTick: " + replayTick);
+                        Debug.Log("[SendState] tick: " + currentTick + ", replayTick: " + replayTick);
                         manipulator.SendGamePlayState(gameplayStateBuffer[replayTick % gameplayStateBufferSize]);
                         latestSentGamePlayStateTick = latestSyncedInputTick;
                     }
@@ -83,7 +72,7 @@ namespace Knoxball
         }
 
 
-        private int LatestSyncedInputStateTick_Server()
+        private int LatestSyncedInputStateTick()
         {
             int currentLowestTick = int.MaxValue;
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -103,7 +92,7 @@ namespace Knoxball
 
         public void ResetGameBuffers()
         {
-            gameplayStateBuffer = new NetworkGamePlayState[gameplayStateBufferSize];
+            gameplayStateBuffer = new T[gameplayStateBufferSize];
             latestSentGamePlayStateTick = 0;
             ResetPlayerInputBuffers();
         }
@@ -121,7 +110,7 @@ namespace Knoxball
             }
         }
 
-        public void ReceivedGamePlayState(NetworkGamePlayState gamePlayState)
+        public void ReceivedGamePlayState(T gamePlayState)
         {
         }
     }

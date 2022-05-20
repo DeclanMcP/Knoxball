@@ -120,7 +120,7 @@ namespace Knoxball
                 timeRemaining -= Time.deltaTime;
                 timeRemaining = Mathf.Max(timeRemaining, 0);
 
-                GetComponent<ClientSidePredictionManager>().GameLoop();
+                GetComponent<KnoxballClientSidePredictionHandler>().GameLoop();
                 
                 DisplayTime(timeRemaining);
             }
@@ -172,7 +172,7 @@ namespace Knoxball
             if (IsHost)
             {
                 //TODO look at putting this outside of the if statement? It has non host code
-                GetComponent<ClientSidePredictionManager>().ResetGameBuffers();
+                GetComponent<KnoxballClientSidePredictionHandler>().ResetGameBuffers();
             }
             stadium.GetComponent<StadiumComponent>().Reset();
             StopCelebration();
@@ -218,7 +218,7 @@ namespace Knoxball
         [ClientRpc]
         private void ResetGameBuffers_ClientRpc()
         {
-            GetComponent<ClientSidePredictionManager>().ResetGameBuffers();
+            GetComponent<KnoxballClientSidePredictionHandler>().ResetGameBuffers();
         }
 
         public void AwayTeamScored()

@@ -6,23 +6,25 @@ using UnityEngine;
 
 namespace Knoxball
 {
-    public class ClientSidePredictionManager: NetworkBehaviour, IClientSidePredictionGameManipulator
+    public class ClientSidePredictionGenericManager<T>: IClientSidePredictionGenericGameManipulator<T> where T : INetworkGamePlayState
     {
         private int tick = 0;
         float elapsedTime = 0;
-        IClientSidePredictionExecutor executor;
+        IClientSidePredictionGenericExecutor<T> executor;
         private static int gameplayStateBufferSize = 1024;
         ClientSidePredictionPlayer m_localPlayer;
+        public INetworkGamePlayStateDelegate<T> gamePlayStateDelegate;
 
-        public override void OnNetworkSpawn()
+        public void Start()
         {
-            //Debug.Log($"Is host? ${IsHost}, Is client? ${IsClient}");
-            if (IsHost)
+            Debug.Log($"Is host? ${gamePlayStateDelegate.IsHost()}");
+            if (gamePlayStateDelegate.IsHost())
             {
-                executor = new ClientSidePredictionServer();
-            } else
+                executor = new ClientSidePredictionGenericServer<T>();
+            }
+            else
             {
-                executor = new ClientSidePredictionClient();
+                executor = new ClientSidePredictionGenericClient<T>();
             }
             executor.SetGameManipulator(this);
         }
@@ -72,14 +74,12 @@ namespace Knoxball
             }
         }
 
-
-        public void SendGamePlayState(NetworkGamePlayState gamePlayState)
+        public void SendGamePlayState(T gamePlayState)
         {
-            SetLatestGameplayState_ClientRpc(gamePlayState);
+            gamePlayStateDelegate.SendGamePlayState(gamePlayState);
         }
 
-        [ClientRpc]
-        private void SetLatestGameplayState_ClientRpc(NetworkGamePlayState gamePlayState)
+        public void ReceivedGamePlayState(T gamePlayState)
         {
             executor.ReceivedGamePlayState(gamePlayState);
         }
@@ -98,31 +98,19 @@ namespace Knoxball
             }
         }
 
-
         public void AddForcesToGame()
         {
-            foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
-            {
-                var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
-                if (clientNeworkPlayerObject != null)
-                {
-                    //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + ", Key:" + keyValuePair.Key);
-                    clientNeworkPlayerObject.AddForces();
-                }
-            }
-            Game.Instance.ball.GetComponent<BallComponent>().ManualUpdate();
+            gamePlayStateDelegate.AddForcesToGame();
         }
 
-        public void SetGamePlayStateToState(NetworkGamePlayState gamePlayState)
+        public void SetGamePlayStateToState(T gamePlayState)
         {
-            foreach (NetworkGamePlayerState gamePlayerState in gamePlayState.playerStates)
-            {
-                var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
-                //Debug.Log("[Client] gamePlayerState.ID: " + gamePlayerState.ID + ", playerObject: " + playerObject);
-                playerObject.GetComponent<ClientSidePredictionPlayer>().SetPlayerState(gamePlayerState);
-            }
-            Game.Instance.ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
+            gamePlayStateDelegate.SetGamePlayStateToState(gamePlayState);
+        }
+
+        public T GetGamePlayStateWithTick(int stateTick)
+        {
+            return gamePlayStateDelegate.GetGamePlayStateWithTick(stateTick);
         }
     }
 }

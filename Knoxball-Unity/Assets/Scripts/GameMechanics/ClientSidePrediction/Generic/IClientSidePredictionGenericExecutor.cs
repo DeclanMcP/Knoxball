@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace Knoxball
 {
-    public interface IClientSidePredictionExecutor
+    public interface IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
 
-        void SetGameManipulator(IClientSidePredictionGameManipulator manipulator);
+        void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator);
 
         void ResetPlayerInputsForTick(int tick);
 
@@ -18,6 +18,6 @@ namespace Knoxball
 
         void ResetGameBuffers();
 
-        void ReceivedGamePlayState(NetworkGamePlayState gamePlayState);
+        void ReceivedGamePlayState(T gamePlayState);
     }
 }

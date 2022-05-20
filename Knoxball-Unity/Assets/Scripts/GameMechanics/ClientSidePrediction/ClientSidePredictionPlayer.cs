@@ -6,9 +6,9 @@ namespace Knoxball
     public class ClientSidePredictionPlayer: NetworkBehaviour
     {
         private static int playerInputBufferSize = 1024;
-        private NetworkPlayerInputState[] m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
+        private NetworkPlayerInputState[] m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];//TODO problematic
         public int latestInputTick = 0;
-        private IClientSidePredictionPlayerController m_PlayerController;
+        private IClientSidePredictionPlayerController m_PlayerController;//TODO problematic
 
         public void SetPlayerController(IClientSidePredictionPlayerController playerController)
         {
@@ -17,8 +17,8 @@ namespace Knoxball
 
         public void RecordPlayerInputForTick(int tick)
         {
-            if (!IsOwner) { return; }
-            if (Game.Instance.inGameState != InGameState.Playing) { return; }
+            if (!IsOwner) { return; }//TODO problematic
+            if (Game.Instance.inGameState != InGameState.Playing) { return; }//TODO problematic
             m_PlayerController.UpdatePlayerInput();//Should this be here..?
 
             //Have the player generate the inputstate, we want this monobehaviour to be generic if possible
@@ -28,7 +28,7 @@ namespace Knoxball
             StorePlayerInputState(playerInput);
             //Debug.Log($"Stored player input state ${playerInput.direction}");
 
-            if (IsHost)
+            if (IsHost)//TODO problematic
             {
                 return;
             }
@@ -48,14 +48,14 @@ namespace Knoxball
             latestInputTick = Mathf.Max(latestInputTick, inputState.tick);
         }
 
-        public NetworkGamePlayerState GetCurrentPlayerState(ulong iD)
+        public NetworkGamePlayerState GetCurrentPlayerState(ulong iD)//TODO problematic
         {
             var playerState = m_PlayerController.GetPlayerState();
             playerState.ID = iD;
             return playerState;
         }
 
-        public void SetPlayerState(NetworkGamePlayerState playerState)//Make this state generic?
+        public void SetPlayerState(NetworkGamePlayerState playerState)//TODO problematic//Make this state generic?
         {
             m_PlayerController.SetPlayerState(playerState);
         }
@@ -67,7 +67,7 @@ namespace Knoxball
                 m_PlayerController.ResetInputState();
                 return;
             }
-            NetworkPlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];
+            NetworkPlayerInputState playerInputState = m_playerInputBuffer[tick % playerInputBufferSize];//TODO problematic
             m_PlayerController.SetInputStateToState(playerInputState);
         }
 
@@ -78,7 +78,7 @@ namespace Knoxball
 
         public void ResetInputBuffer()
         {
-            m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];
+            m_playerInputBuffer = new NetworkPlayerInputState[playerInputBufferSize];//TODO problematic
             latestInputTick = 0;
         }
 

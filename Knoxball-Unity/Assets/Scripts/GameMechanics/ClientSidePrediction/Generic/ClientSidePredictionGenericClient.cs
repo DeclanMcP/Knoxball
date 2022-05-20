@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace Knoxball
 {
-    public class ClientSidePredictionClient : IClientSidePredictionExecutor
+    public class ClientSidePredictionGenericClient<T> : IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
         private static int gameplayStateBufferSize = 1024;
-        private NetworkGamePlayState latestGameplayState = new NetworkGamePlayState(); //Only used by client
+        private T latestGameplayState = default(T);
         bool receivedLatestGameplayState = false;
-        IClientSidePredictionGameManipulator manipulator;
+        IClientSidePredictionGenericGameManipulator<T> manipulator;
         ClientSidePredictionPlayer m_localPlayer;
 
-        public void SetGameManipulator(IClientSidePredictionGameManipulator manipulator)
+        public void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator)
         {
             this.manipulator = manipulator;
         }
@@ -41,7 +41,7 @@ namespace Knoxball
         {
             if (receivedLatestGameplayState)
             {
-                var replayTick = this.latestGameplayState.tick;
+                var replayTick = this.latestGameplayState.GetTick();
                 manipulator.SetGamePlayStateToState(this.latestGameplayState);
                 //Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
                 while (replayTick < currentTick)
@@ -59,16 +59,16 @@ namespace Knoxball
 
         public void ResetGameBuffers()
         {
-            latestGameplayState = new NetworkGamePlayState(); //Only used by client
+            latestGameplayState = default(T);
             receivedLatestGameplayState = false;
             GetLocalPlayer().ResetInputBuffer();
         }
 
-        public void ReceivedGamePlayState(NetworkGamePlayState gamePlayState)
+        public void ReceivedGamePlayState(T gamePlayState)
         {
-            if (latestGameplayState.tick < gamePlayState.tick)
+            if (latestGameplayState == null || latestGameplayState?.GetTick() < gamePlayState.GetTick())
             {
-                //Debug.Log($"current tick: ${tick} newGPTick: ${gameplayState.tick}");
+                Debug.Log($"newGPTick: ${gamePlayState.GetTick()}");
                 this.latestGameplayState = gamePlayState;
                 this.receivedLatestGameplayState = true;
 

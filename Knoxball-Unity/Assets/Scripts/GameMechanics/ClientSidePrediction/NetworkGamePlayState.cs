@@ -2,7 +2,7 @@
 
 namespace Knoxball
 {
-    public class NetworkGamePlayState : INetworkSerializable
+    public class NetworkGamePlayState : INetworkSerializable, INetworkGamePlayState
     {
         public int tick;
         public NetworkBallState ballState = new NetworkBallState();
@@ -18,6 +18,11 @@ namespace Knoxball
             this.tick = tick;
             this.ballState = ballState;
             this.playerStates = playerStates;
+        }
+
+        public int GetTick()
+        {
+            return tick;
         }
 
         // INetworkSerializable
