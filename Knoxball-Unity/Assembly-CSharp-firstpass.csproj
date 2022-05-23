@@ -58,15 +58,6 @@
   <ItemGroup>
     <Compile Include="Assets/Standard Assets/2D/Scripts/Camera2DFollow.cs" />
     <Compile Include="Assets/Standard Assets/2D/Scripts/CameraFollow.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\PlayerInputState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\InGameState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\GameTeam.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkString.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGamePlayState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGameData.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkPlayerData.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGamePlayerState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NewClass.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

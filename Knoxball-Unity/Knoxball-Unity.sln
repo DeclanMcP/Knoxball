@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client-side Prediction Multiplayer", "Client-side Prediction Multiplayer.csproj", "{36085EDC-7809-A9F6-41C0-50615D7895BE}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass", "Assembly-CSharp-firstpass.csproj", "{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}"
@@ -13,6 +15,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36085EDC-7809-A9F6-41C0-50615D7895BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36085EDC-7809-A9F6-41C0-50615D7895BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36085EDC-7809-A9F6-41C0-50615D7895BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36085EDC-7809-A9F6-41C0-50615D7895BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU

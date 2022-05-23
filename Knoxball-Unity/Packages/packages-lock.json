@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.declanmcp.clientsidepredictionmultiplayer": {
+      "version": "file:com.declanmcp.clientsidepredictionmultiplayer",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.netcode.gameobjects": "1.0.0-pre.3"
+      }
+    },
     "com.unity.2d.animation": {
       "version": "6.0.5",
       "depth": 0,

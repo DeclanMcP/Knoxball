@@ -60,15 +60,6 @@
     <Compile Include="Assets/Joystick Pack/Scripts/Editor/DynamicJoystickEditor.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Editor/FloatingJoystickEditor.cs" />
     <Compile Include="Assets/Joystick Pack/Scripts/Editor/JoystickEditor.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\PlayerInputState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\InGameState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\GameTeam.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkString.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGamePlayState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGameData.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkPlayerData.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NetworkGamePlayerState.cs" />
-    <Compile Include="Assets\Scripts\GameMechanics\ClientSidePrediction\NewClass.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -853,6 +844,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{4038B7A5-1A1D-3215-A7BF-39C3ED10262F}</Project>
+      <Name>Assembly-CSharp-firstpass</Name>
+    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{BCE44ECB-0E7A-AAE7-5CC4-3771E9F78A9A}</Project>
       <Name>Assembly-CSharp</Name>
