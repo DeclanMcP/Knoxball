@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace ClientSidePredictionMultiplayer
 {
-    abstract public class ClientSidePredictionGenericPlayer<T> : NetworkBehaviour where T: INetworkPlayerInputState
+    abstract public class ClientSidePredictionGenericPlayer : NetworkBehaviour
     {
         private static int playerInputBufferSize = 1024;
-        private T[] m_playerInputBuffer = new T[playerInputBufferSize];
+        private INetworkPlayerInputState[] m_playerInputBuffer = new INetworkPlayerInputState[playerInputBufferSize];
         public int latestInputTick = 0;
 
         public ClientSidePredictionGenericPlayer()
@@ -28,40 +28,34 @@ namespace ClientSidePredictionMultiplayer
             {
                 return;
             }
-            SendInput_ServerRpc(playerInputState);
+            SendAndStoreToServer(playerInputState);
         }
 
-
-        [ServerRpc] // Leave (RequireOwnership = true)
-        private void SendInput_ServerRpc(T inputState)
-        {
-            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
-            StorePlayerInputState(inputState);
-        }
-
-        private void StorePlayerInputState(T inputState)
+        protected void StorePlayerInputState(INetworkPlayerInputState inputState)
         {
             m_playerInputBuffer[inputState.Tick % playerInputBufferSize] = inputState;
             latestInputTick = Mathf.Max(latestInputTick, inputState.Tick);
         }
 
+        protected INetworkPlayerInputState GetPlayerInputStateForTick(int tick)
+        {
+            return m_playerInputBuffer[tick % playerInputBufferSize];
+        }
 
         public void ResetInputsForTick(int tick)
         {
-            m_playerInputBuffer[tick % playerInputBufferSize] = default(T);
+            m_playerInputBuffer[tick % playerInputBufferSize] = null;
         }
 
         public void ResetInputBuffer()
         {
-            m_playerInputBuffer = new T[playerInputBufferSize];//TODO problematic
+            m_playerInputBuffer = new INetworkPlayerInputState[playerInputBufferSize];//TODO problematic
             latestInputTick = 0;
         }
 
-        protected T GetPlayerInputStateForTick(int tick) {
-            return m_playerInputBuffer[tick % playerInputBufferSize];
-        }
+        abstract public void SendAndStoreToServer(INetworkPlayerInputState inputState);
 
-        abstract public T GetPlayerInputState();
+        abstract public INetworkPlayerInputState GetPlayerInputState();
 
         abstract public void SetInputsForTick(int tick);
 

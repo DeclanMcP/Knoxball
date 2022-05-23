@@ -50,7 +50,7 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     //Debug.Log("[GameState]: " + System.Reflection.MethodBase.GetCurrentMethod().Name + ", Key:" + keyValuePair.Key);

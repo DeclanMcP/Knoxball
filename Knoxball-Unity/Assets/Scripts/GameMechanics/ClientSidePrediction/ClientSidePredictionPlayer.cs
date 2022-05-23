@@ -1,8 +1,9 @@
 ﻿using ClientSidePredictionMultiplayer;
+using Unity.Netcode;
 
 namespace Knoxball
 {
-    public class ClientSidePredictionPlayer: ClientSidePredictionGenericPlayer<NetworkPlayerInputState>
+    public class ClientSidePredictionPlayer: ClientSidePredictionGenericPlayer
     {
         private IClientSidePredictionPlayerController m_PlayerController;
 
@@ -11,12 +12,35 @@ namespace Knoxball
             this.m_PlayerController = playerController;
         }
 
-        override public NetworkPlayerInputState GetPlayerInputState()
+        override public INetworkPlayerInputState GetPlayerInputState()
         {
             if (Game.Instance.inGameState != InGameState.Playing) { return null; }
             m_PlayerController.UpdatePlayerInput();//Should this be here..? probably not
             var playerInput = m_PlayerController.GetPlayerInputState();
             return playerInput;
+        }
+
+        override public void SetInputsForTick(int tick) //Required
+        {
+            //Not ideal, casting, but the best of many evils for now (cannot use Generics + NGO)
+            var playerInputState = (NetworkPlayerInputState)GetPlayerInputStateForTick(tick);
+            if (playerInputState == null)
+            {
+                m_PlayerController.ResetInputState();
+                return;
+            }
+            m_PlayerController.SetInputStateToState(playerInputState);
+        }
+
+
+        override public void AddForces()
+        {
+            m_PlayerController.AddForces();
+        }
+
+        override public void SendAndStoreToServer(INetworkPlayerInputState inputState)
+        {
+            SendInput_ServerRpc((NetworkPlayerInputState)inputState);
         }
 
 
@@ -32,22 +56,13 @@ namespace Knoxball
             m_PlayerController.SetPlayerState(playerState);
         }
 
-        override public void SetInputsForTick(int tick) //Required
+
+        [ServerRpc] // Leave (RequireOwnership = true)
+        private void SendInput_ServerRpc(NetworkPlayerInputState inputState)
         {
-            //Not ideal, casting, but the best of many evils for now
-            var playerInputState = GetPlayerInputStateForTick(tick);
-            if (playerInputState == null)
-            {
-                m_PlayerController.ResetInputState();
-                return;
-            }
-            m_PlayerController.SetInputStateToState(playerInputState);
+            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
+            StorePlayerInputState(inputState);
         }
 
-
-        override public void AddForces()
-        {
-            m_PlayerController.AddForces();
-        }
     }
 }

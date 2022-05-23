@@ -22,7 +22,7 @@ namespace ClientSidePredictionMultiplayer
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
                 //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.ResetInputsForTick(tick);
 
@@ -78,7 +78,7 @@ namespace ClientSidePredictionMultiplayer
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
                 currentLowestTick = Math.Min(clientNeworkPlayerObject.latestInputTick, currentLowestTick);
             }
             if (currentLowestTick == int.MaxValue)
@@ -102,7 +102,7 @@ namespace ClientSidePredictionMultiplayer
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.ResetInputBuffer();

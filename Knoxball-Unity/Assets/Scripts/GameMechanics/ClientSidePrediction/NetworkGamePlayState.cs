@@ -21,10 +21,7 @@ namespace Knoxball
             this.playerStates = playerStates;
         }
 
-        public int GetTick()
-        {
-            return tick;
-        }
+        public int Tick { get => this.tick; }
 
         // INetworkSerializable
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

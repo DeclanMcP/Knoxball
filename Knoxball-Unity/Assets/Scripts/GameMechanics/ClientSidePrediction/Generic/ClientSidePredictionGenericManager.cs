@@ -12,7 +12,7 @@ namespace ClientSidePredictionMultiplayer
         float elapsedTime = 0;
         IClientSidePredictionGenericExecutor<T> executor;
         private static int gameplayStateBufferSize = 1024;
-        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> m_localPlayer;
+        ClientSidePredictionGenericPlayer m_localPlayer;
         public INetworkGamePlayStateDelegate<T> gamePlayStateDelegate;
 
         public void Start()
@@ -29,12 +29,12 @@ namespace ClientSidePredictionMultiplayer
             executor.SetGameManipulator(this);
         }
 
-        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> GetLocalPlayer()
+        ClientSidePredictionGenericPlayer GetLocalPlayer()
         {
 
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer>();
             }
             return m_localPlayer;
         }
@@ -90,7 +90,7 @@ namespace ClientSidePredictionMultiplayer
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.SetInputsForTick(tick);

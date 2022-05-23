@@ -11,7 +11,7 @@ namespace ClientSidePredictionMultiplayer
         private T latestGameplayState = default(T);
         bool receivedLatestGameplayState = false;
         IClientSidePredictionGenericGameManipulator<T> manipulator;
-        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> m_localPlayer;
+        ClientSidePredictionGenericPlayer m_localPlayer;
 
         public void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator)
         {
@@ -19,11 +19,11 @@ namespace ClientSidePredictionMultiplayer
         }
 
 
-        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> GetLocalPlayer()
+        ClientSidePredictionGenericPlayer GetLocalPlayer()
         {
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer>();
             }
             return m_localPlayer;
         }
@@ -41,7 +41,7 @@ namespace ClientSidePredictionMultiplayer
         {
             if (receivedLatestGameplayState)
             {
-                var replayTick = this.latestGameplayState.GetTick();
+                var replayTick = this.latestGameplayState.Tick;
                 manipulator.SetGamePlayStateToState(this.latestGameplayState);
                 //Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
                 while (replayTick < currentTick)
@@ -66,9 +66,9 @@ namespace ClientSidePredictionMultiplayer
 
         public void ReceivedGamePlayState(T gamePlayState)
         {
-            if (latestGameplayState == null || latestGameplayState?.GetTick() < gamePlayState.GetTick())
+            if (latestGameplayState == null || latestGameplayState?.Tick < gamePlayState.Tick)
             {
-                Debug.Log($"newGPTick: ${gamePlayState.GetTick()}");
+                //Debug.Log($"newGPTick: ${gamePlayState.Tick}");
                 this.latestGameplayState = gamePlayState;
                 this.receivedLatestGameplayState = true;
 
