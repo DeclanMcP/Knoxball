@@ -1,6 +1,5 @@
-﻿using System;
-
-namespace Knoxball
+﻿
+namespace ClientSidePredictionMultiplayer
 {
     public interface INetworkGamePlayState
     {

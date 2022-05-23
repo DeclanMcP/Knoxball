@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Knoxball
+namespace ClientSidePredictionMultiplayer
 {
     public class ClientSidePredictionGenericManager<T>: IClientSidePredictionGenericGameManipulator<T> where T : INetworkGamePlayState
     {
@@ -12,7 +12,7 @@ namespace Knoxball
         float elapsedTime = 0;
         IClientSidePredictionGenericExecutor<T> executor;
         private static int gameplayStateBufferSize = 1024;
-        ClientSidePredictionPlayer m_localPlayer;
+        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> m_localPlayer;
         public INetworkGamePlayStateDelegate<T> gamePlayStateDelegate;
 
         public void Start()
@@ -29,12 +29,12 @@ namespace Knoxball
             executor.SetGameManipulator(this);
         }
 
-        ClientSidePredictionPlayer GetLocalPlayer()
+        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> GetLocalPlayer()
         {
 
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionPlayer>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
             }
             return m_localPlayer;
         }
@@ -90,7 +90,7 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.SetInputsForTick(tick);

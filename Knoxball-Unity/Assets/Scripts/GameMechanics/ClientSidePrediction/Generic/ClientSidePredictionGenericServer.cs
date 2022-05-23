@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Knoxball
+namespace ClientSidePredictionMultiplayer
 {
     public class ClientSidePredictionGenericServer<T> : IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
@@ -22,7 +22,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
                 //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.ResetInputsForTick(tick);
 
@@ -78,7 +78,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
                 currentLowestTick = Math.Min(clientNeworkPlayerObject.latestInputTick, currentLowestTick);
             }
             if (currentLowestTick == int.MaxValue)
@@ -102,7 +102,7 @@ namespace Knoxball
             foreach (KeyValuePair<ulong, NetworkObject> keyValuePair in NetworkManager.Singleton.SpawnManager.SpawnedObjects)
             {
                 var clientPlayerObject = keyValuePair.Value;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
                 if (clientNeworkPlayerObject != null)
                 {
                     clientNeworkPlayerObject.ResetInputBuffer();
@@ -113,5 +113,7 @@ namespace Knoxball
         public void ReceivedGamePlayState(T gamePlayState)
         {
         }
+
+
     }
 }

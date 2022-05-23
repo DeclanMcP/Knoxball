@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Knoxball
+namespace ClientSidePredictionMultiplayer
 {
     public class ClientSidePredictionGenericClient<T> : IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
@@ -11,7 +11,7 @@ namespace Knoxball
         private T latestGameplayState = default(T);
         bool receivedLatestGameplayState = false;
         IClientSidePredictionGenericGameManipulator<T> manipulator;
-        ClientSidePredictionPlayer m_localPlayer;
+        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> m_localPlayer;
 
         public void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator)
         {
@@ -19,11 +19,11 @@ namespace Knoxball
         }
 
 
-        ClientSidePredictionPlayer GetLocalPlayer()
+        ClientSidePredictionGenericPlayer<INetworkPlayerInputState> GetLocalPlayer()
         {
             if (m_localPlayer == null)
             {
-                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionPlayer>();
+                m_localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponent<ClientSidePredictionGenericPlayer<INetworkPlayerInputState>>();
             }
             return m_localPlayer;
         }

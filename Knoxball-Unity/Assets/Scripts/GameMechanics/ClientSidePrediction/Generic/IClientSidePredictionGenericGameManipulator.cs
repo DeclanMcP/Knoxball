@@ -1,5 +1,5 @@
 ﻿
-namespace Knoxball
+namespace ClientSidePredictionMultiplayer
 {
     public interface IClientSidePredictionGenericGameManipulator<T> where T : INetworkGamePlayState
     {

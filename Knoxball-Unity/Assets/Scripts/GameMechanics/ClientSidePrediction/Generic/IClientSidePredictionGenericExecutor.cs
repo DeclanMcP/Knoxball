@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Knoxball
+namespace ClientSidePredictionMultiplayer
 {
     public interface IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
