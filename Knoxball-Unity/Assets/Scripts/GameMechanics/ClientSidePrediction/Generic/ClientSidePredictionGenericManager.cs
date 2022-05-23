@@ -48,6 +48,7 @@ namespace ClientSidePredictionMultiplayer
                 this.elapsedTime -= Time.fixedDeltaTime;
                 //Send inputs for tick
                 //Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
+                GetLocalPlayer().UpdatePlayerInput();
                 GetLocalPlayer().RecordPlayerInputForTick(tick);
 
 

@@ -27,7 +27,7 @@ namespace Knoxball
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionPlayer>();
+                var clientNeworkPlayerObject = clientPlayerObject.GetComponent<NetworkPlayerComponent>();
                 gamePlayerStates[i] = clientNeworkPlayerObject.GetCurrentPlayerState(clientNeworkPlayerObject.NetworkObjectId);
                 i++;
             }
@@ -40,7 +40,7 @@ namespace Knoxball
             foreach (NetworkGamePlayerState gamePlayerState in gamePlayState.playerStates)
             {
                 var playerObject = NetworkManager.Singleton.SpawnManager.SpawnedObjects[gamePlayerState.ID];
-                playerObject.GetComponent<ClientSidePredictionPlayer>().SetPlayerState(gamePlayerState);
+                playerObject.GetComponent<NetworkPlayerComponent>().SetPlayerState(gamePlayerState);
             }
             Game.Instance.ball.GetComponent<BallComponent>().SetState(gamePlayState.ballState);
         }

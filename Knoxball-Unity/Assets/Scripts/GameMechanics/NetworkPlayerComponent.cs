@@ -2,10 +2,11 @@
 using UnityEngine;
 using TMPro;
 using UnityStandardAssets._2D;
+using ClientSidePredictionMultiplayer;
 
 namespace Knoxball
 {
-    public class NetworkPlayerComponent : NetworkBehaviour, IClientSidePredictionPlayerController
+    public class NetworkPlayerComponent : ClientSidePredictionGenericPlayer
     {
         //if the keyboard button panning is enabling, player will be able to use keyboard keys to move the camera
         [System.Serializable]
@@ -61,7 +62,6 @@ namespace Knoxball
                 displayName.text = GetUsername();
             }
 
-            GetComponent<ClientSidePredictionPlayer>().SetPlayerController(this);
             var playerComponent = gameObject.GetComponent<PlayerComponent>();
             playerComponent.SetLocalPlayer(IsOwner);
         }
@@ -96,21 +96,10 @@ namespace Knoxball
             AddForces();
         }
 
-        public void UpdatePlayerInput()
+        override public void UpdatePlayerInput()
         {
             m_directionState = GenerateKeypadForce() + GenerateJoystickForce();
             m_kickState = m_kickButtonState || Input.GetKey(kick);
-        }
-
-        public void AddForces()
-        {
-            gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
-
-            if (GetComponent<Rigidbody>().velocity.magnitude > maxSpeed)
-            {
-                GetComponent<Rigidbody>().velocity = Vector3.ClampMagnitude(GetComponent<Rigidbody>().velocity, maxSpeed); ;
-            }
-            HandleKickEvent();
         }
 
         Vector3 GenerateKeypadForce()
@@ -147,7 +136,7 @@ namespace Knoxball
             m_directionState = inputState.direction;
         }
 
-        public void SetPlayerState(NetworkGamePlayerState playerState)//Make this state generic?
+        public void SetPlayerState(NetworkGamePlayerState playerState)
         {
             //Debug.Log("SetPlayerState, id: " + playerState.ID + "networkId: " + this.NetworkObjectId);
             transform.position = playerState.position;
@@ -186,9 +175,55 @@ namespace Knoxball
             return new NetworkGamePlayerState(0, transform.position, GetComponent<Rigidbody>().velocity, transform.rotation, m_kickState);
         }
 
-        public NetworkPlayerInputState GetPlayerInputState()
+        override public INetworkPlayerInputState GetPlayerInputState()
         {
-            return new NetworkPlayerInputState(0, m_directionState, m_kickState);
+            if (Game.Instance.inGameState != InGameState.Playing) { return null; }
+            //UpdatePlayerInput();//TODO Should this be here..? probably not
+            var playerInput = new NetworkPlayerInputState(0, m_directionState, m_kickState);
+            return playerInput;
+        }
+
+        override public void SetInputsForTick(int tick) //Required
+        {
+            //Not ideal, casting, but the best of many evils for now (cannot use Generics + NGO)
+            var playerInputState = (NetworkPlayerInputState)GetPlayerInputStateForTick(tick);
+            if (playerInputState == null)
+            {
+                ResetInputState();
+                return;
+            }
+            SetInputStateToState(playerInputState);
+        }
+
+
+        override public void AddForces()
+        {
+            gameObject.GetComponent<Rigidbody>().AddForce(m_directionState, ForceMode.VelocityChange);
+
+            if (GetComponent<Rigidbody>().velocity.magnitude > maxSpeed)
+            {
+                GetComponent<Rigidbody>().velocity = Vector3.ClampMagnitude(GetComponent<Rigidbody>().velocity, maxSpeed); ;
+            }
+            HandleKickEvent();
+        }
+
+        override public void SendAndStoreToServer(INetworkPlayerInputState inputState)
+        {
+            SendInput_ServerRpc((NetworkPlayerInputState)inputState);
+        }
+
+        public NetworkGamePlayerState GetCurrentPlayerState(ulong iD)
+        {
+            var playerState = GetPlayerState();
+            playerState.ID = iD;
+            return playerState;
+        }
+
+        [ServerRpc] // Leave (RequireOwnership = true)
+        private void SendInput_ServerRpc(NetworkPlayerInputState inputState)
+        {
+            //Debug.Log("[Input] Received input, tick: " + inputState.tick + ", inputstate: " + inputState.direction + "current tick: " + Game.instance.tick);
+            StorePlayerInputState(inputState);
         }
     }
 

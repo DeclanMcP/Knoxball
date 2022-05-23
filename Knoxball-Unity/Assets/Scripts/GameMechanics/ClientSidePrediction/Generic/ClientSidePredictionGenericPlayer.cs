@@ -13,7 +13,6 @@ namespace ClientSidePredictionMultiplayer
         {
         }
 
-
         public void RecordPlayerInputForTick(int tick) //Required
         {
             if (!IsOwner) { return; }
@@ -52,6 +51,8 @@ namespace ClientSidePredictionMultiplayer
             m_playerInputBuffer = new INetworkPlayerInputState[playerInputBufferSize];//TODO problematic
             latestInputTick = 0;
         }
+
+        abstract public void UpdatePlayerInput();
 
         abstract public void SendAndStoreToServer(INetworkPlayerInputState inputState);
 
