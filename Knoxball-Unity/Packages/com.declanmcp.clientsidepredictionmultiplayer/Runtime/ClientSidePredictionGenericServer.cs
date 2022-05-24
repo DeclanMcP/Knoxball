@@ -23,9 +23,7 @@ namespace ClientSidePredictionMultiplayer
             {
                 var clientPlayerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
                 var clientNeworkPlayerObject = clientPlayerObject.GetComponent<ClientSidePredictionGenericPlayer>();
-                //Debug.Log("[Replay] Found player by id: " + clientId + ", player: " + clientNeworkPlayerObject);
                 clientNeworkPlayerObject.ResetInputsForTick(tick);
-
             }
         }
 
@@ -85,7 +83,6 @@ namespace ClientSidePredictionMultiplayer
             {
                 currentLowestTick = 0;
             }
-            //Debug.Log($"currentLowestTick: ${currentLowestTick}");
             return currentLowestTick;
         }
 
@@ -113,7 +110,5 @@ namespace ClientSidePredictionMultiplayer
         public void ReceivedGamePlayState(T gamePlayState)
         {
         }
-
-
     }
 }

@@ -43,12 +43,10 @@ namespace ClientSidePredictionMultiplayer
             {
                 var replayTick = this.latestGameplayState.Tick;
                 manipulator.SetGamePlayStateToState(this.latestGameplayState);
-                //Debug.Log($"Received GPState, GSPTick: ${replayTick}, current tick: ${tick}");
                 while (replayTick < currentTick)
                 {
                     //Apply inputs of this tick from locally stored states
                     GetLocalPlayer().SetInputsForTick(replayTick);
-                    //We arent simulating
                     manipulator.AddForcesToGame();
                     Physics.Simulate(Time.fixedDeltaTime);
                     replayTick++;
@@ -68,7 +66,6 @@ namespace ClientSidePredictionMultiplayer
         {
             if (latestGameplayState == null || latestGameplayState?.Tick < gamePlayState.Tick)
             {
-                //Debug.Log($"newGPTick: ${gamePlayState.Tick}");
                 this.latestGameplayState = gamePlayState;
                 this.receivedLatestGameplayState = true;
 

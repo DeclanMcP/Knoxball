@@ -7,7 +7,6 @@ namespace ClientSidePredictionMultiplayer
 {
     public interface IClientSidePredictionGenericExecutor<T> where T : INetworkGamePlayState
     {
-
         void SetGameManipulator(IClientSidePredictionGenericGameManipulator<T> manipulator);
 
         void ResetPlayerInputsForTick(int tick);

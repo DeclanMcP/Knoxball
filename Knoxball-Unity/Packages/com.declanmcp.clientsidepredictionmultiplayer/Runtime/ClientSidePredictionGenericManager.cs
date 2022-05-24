@@ -17,7 +17,6 @@ namespace ClientSidePredictionMultiplayer
 
         public void Start()
         {
-            Debug.Log($"Is host? ${gamePlayStateDelegate.IsHost()}");
             if (gamePlayStateDelegate.IsHost())
             {
                 executor = new ClientSidePredictionGenericServer<T>();
@@ -42,15 +41,11 @@ namespace ClientSidePredictionMultiplayer
         public void GameLoop()
         {
             this.elapsedTime += Time.deltaTime;
-            //Debug.Log("Time.deltaTime: " + Time.deltaTime + ", Time.fixedDeltaTime: " + Time.fixedDeltaTime);
             while (this.elapsedTime >= Time.fixedDeltaTime)
             {
                 this.elapsedTime -= Time.fixedDeltaTime;
-                //Send inputs for tick
-                //Debug.Log("[Replay] Main loop: RecordPlayerInputForTick: " + localPlayer);
                 GetLocalPlayer().UpdatePlayerInput();
                 GetLocalPlayer().RecordPlayerInputForTick(tick);
-
 
                 SetPlayerInputsForTick(tick);
                 AddForcesToGame();

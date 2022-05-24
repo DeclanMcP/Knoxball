@@ -13,7 +13,7 @@ namespace ClientSidePredictionMultiplayer
         {
         }
 
-        public void RecordPlayerInputForTick(int tick) //Required
+        public void RecordPlayerInputForTick(int tick)
         {
             if (!IsOwner) { return; }
             var playerInputState = GetPlayerInputState();
@@ -21,7 +21,6 @@ namespace ClientSidePredictionMultiplayer
             if (playerInputState == null) { return; }
 
             StorePlayerInputState(playerInputState);
-            //Debug.Log($"Stored player input state ${playerInput.direction}");
 
             if (IsHost)
             {
